@@ -2218,7 +2218,7 @@ void main(int argc, char **argv)
 
 
 
-    printf("VoIP task started %x\n", addr);
+    printf("VoIP task has started %x\n", addr);
     printf("VoIP is running...\n");
     char a[]={0x00};
     /////phi implementation///////////////////
