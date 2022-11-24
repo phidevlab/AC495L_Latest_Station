@@ -1,0 +1,41 @@
+/*
+ * profiles8.h --
+ *
+ * This header file exports the Profile data types
+ *
+ * Copyright (c) 2004 Legerity Inc.
+ * All rights reserved.
+ * Legerity confidential and proprietary information.
+ *
+ * Project Info --
+ *   File:  D:\Legerity\VOICEP~4\DEMO_A~1\mini_pbx\VP880_~1\LE71HE~1.VPW
+ *   Type:  VP880-CP5621 IVD MiniPBX Project (Line Module LE71HE0803)
+ *   Date:  Monday, June 28, 2004 13:46:10
+ */
+
+#ifndef PROFILES8_H
+#define PROFILES8_H
+
+#ifdef VP_API_TYPES_H
+#include "vp_api_types.h"
+#else
+typedef unsigned char VpProfileDataType;
+#endif
+
+/************** Device Parameters **************/
+/* Device Profile */
+extern const VpProfileDataType DEV_PROFILE[];
+
+/************** AC Filter Coefficients **************/
+extern const VpProfileDataType AC_600R_FXO[];        /* AC 600 FXO Coefficients */
+extern const VpProfileDataType AC_600R_FXS[];        /* AC 600 FXS Coefficients */
+
+/************** DC Feed Parameters **************/
+extern const VpProfileDataType DC_25MA_CC[];         /* 25 mA current feed */
+extern const VpProfileDataType DC_40MA_RF[];         /* 40mA Resistive feed */
+
+/************** Ring Signal Parameters **************/
+extern const VpProfileDataType RING_20HZ_SINE[];     /* 20Hz, Sinewave ringing, 66Vpk */
+extern const VpProfileDataType RING_CAD_STD[];		/* Standard Ringing Cadence (2 sec on 4 sec off) */
+#endif /* PROFILES8_H */
+

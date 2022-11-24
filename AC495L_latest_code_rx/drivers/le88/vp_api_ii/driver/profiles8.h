@@ -1,0 +1,54 @@
+/*
+ * profiles8.h --
+ *
+ * This header file exports the Profile data types
+ *
+ * Copyright (c) 2006 Legerity Inc.
+ * All rights reserved.
+ * Legerity confidential and proprietary information.
+ *
+ * Project Info --
+ *   File:  C:\DOCUME~1\alexv\MYDOCU~1\ALEXV~1\02-SEC~1\VERSIO~1.0_B\AC-05_~1\AC-05_~1.VPW
+ *   Type:  VP880 VoicePort MiniPBX Project (Line Module LE71HE0824)
+ *   Date:  Wednesday, April 05, 2006 14:20:29
+ *
+ *   This file was generated with Profile Wizard Version: 1.7.1
+ */
+
+#ifndef PROFILES8_H
+#define PROFILES8_H
+
+#ifdef VP_API_TYPES_H
+#include "vp_api_types.h"
+#else
+typedef unsigned char VpProfileDataType;
+#endif
+
+
+/************** Device Parameters **************/
+/* Device Profile */
+extern const VpProfileDataType DEV_PROFILE[];
+
+/************** AC Filter Coefficients **************/
+extern const VpProfileDataType AC_600R_FXS[];        /* AlexV_600.wsc */
+
+/************** DC Feed Parameters **************/
+extern const VpProfileDataType DC_23mA_45V[];        /* Hook=11ma, VOC=45v VAS=3v  Ring_18_50mA  */
+
+/************** Ring Signal Parameters **************/
+extern const VpProfileDataType RING_25HZ_SINE[];     /* 82,3Vpk (83.165) Sine Wave */
+
+/************** Call Progress Tones **************/
+
+/************** Cadence Definitions **************/
+extern const VpProfileDataType RING_CAD_STD[];       /* Standard Ringing Cadence (1sec ON - 4sec OFF) */
+extern const VpProfileDataType RING_CAD_2[];
+extern const VpProfileDataType	RING_CAD_3[];
+/************** Caller ID **************/
+
+/************** Metering Profile **************/
+
+/************** FXO/Dialing Profile **************/
+
+#endif /* PROFILES8_H */
+

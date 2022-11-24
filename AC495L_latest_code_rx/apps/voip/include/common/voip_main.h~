@@ -1,0 +1,267 @@
+/********************************************************************
+ * AudioCodes improved application                                  *
+ *                                                                  *
+ * File Name:	voip_main.h                                        *
+ *                                                                  *
+ * Copyright (C) 2008 AudioCodes Ltd.                               *
+ *                                                                  *
+ * Modifications :                                                  *
+ *                                                                  *
+ * 28/02/08 - Coding started.                                       *
+ *																	*
+ ********************************************************************/
+
+#ifndef _VOIP_MAIN_
+#define _VOIP_MAIN_
+
+
+#define ACL_VOIP_TOOLKIT_VERSION "2.6.2_b_1"
+
+/* Called in case receiving internet connection or in case changing primary
+ * parameters. These parameters are configuration parameters of the voip stack
+ */
+
+#define PAGING_BUFF_LEN 1024
+
+#define PAGING_END_TIMEOUT	  1500  // the time we find stream lost.
+#define PAGING_START_TIMEOUT  50  // every time we wait and check all call is disconnect or not when try to paging outgoing.
+#define PAGING_PTIME          20
+#define PVT_CHANNEL           0
+#define PG_CHANNEL            1
+#define CONF_CHANNEL          2
+
+#define NONE                  0
+#define HANDSET               1
+#define MIC                   3
+#define HEADSET               2
+#define SPEAKER               4
+
+#define SET                   1
+#define CLEAR                 0
+#define WRITE                 1
+#define READ                  0
+#define START_TONE            1
+#define STOP_TONE             0
+#define DIAGNOSTIC_PIN_CHECK_CNTR 6
+
+#define LIVE               '1'
+#define DEAD               '0'
+#define INVALID             3
+#define VALID               2
+
+#define NANOX               1
+#define LED_OFF             0
+#define LED_FLASH           1
+#define LINE_BLANK          0
+#define MSG_FLASH           1
+#define CONTINUE_DISPLAY    2
+
+#define LINE1               1
+#define LINE2               2
+#define LINE3               3
+#define LINE4               4
+
+#define LED1                1
+#define LED2                2
+#define LED3                3
+#define LED4                4
+
+
+#define LCD_CLR_FIRST_LINE                  1
+#define LCD_CLR_SECOND_LINE                 2
+#define LCD_CLR_BOTH_LINE                   3
+#define LCD_CLR_11_POSITION                 4
+#define LCD_CLR_FIRST_10_POSITION           5
+#define NO_LCD_CLR                          0
+
+#define LED                 1
+#define LCD                 2
+
+#define MIN_OFFSET         11
+#define DIR_KEY_OFFSET     10
+#define ICOM_OFFSET        00
+#define GROUP_OFFSET       32
+#define ZONE_OFFSET        64
+#define AIM_OFFSET         96
+#define GLOBAL_OFFSET      100
+
+
+#define INIT_STATE              '1'// 1
+#define VCCS_REGISTERING_STATE  '2'//2
+#define SIP_REGISTERING_STATE   '3'//3
+#define CONFIGURING_STATE       '4'//4
+#define IDLE_STATE              '5'//5
+#define P2P_OFF_HOOK_STATE          '6'//6
+#define RINGBACK_STATE          '7'//7
+#define P2P_STATE               '8'//8
+#define PAGE_INITIATOR_STATE    '9'
+#define P2P_RESET_STATE         'a'
+#define INTERCOM_STATE          'b'
+#define GROUP_STATE             'c'
+#define ICOM_HOP_STATE          'd'
+#define DIAGNOSTICS_STATE       'e'
+#define DSP_RADV_INIT_STATE     'f'
+#define SIP_REGISTERING_STATE_MANUAL  'g'
+#define CONF_INIT_STATE         'h'
+#define CONFERENCE_STATE        'i'
+#define P2P_RESET_RINGBACK_STATE      'j'
+#define GROUP_RESET_RINGBACK_STATE    'k'
+#define ZONE_RESET_RINGBACK_STATE     'l'
+#define PAGE_RESET_RINGBACK_STATE     'm'
+#define INTERCOM_RESET_RINGBACK_STATE 'n'
+#define CONF_RESET_RINGBACK_STATE     'o'
+#define GROUP_CONTRIBUTOR_STATE       'p'
+#define UNDER_MANUAL_SIP_REGISTRATION_STATE   'q'
+
+
+
+
+
+
+/***********FSU EVENTS**************/
+#define INIT_EVENT              1
+#define APP_TIMEOUT_EVENT       2
+#define VALID_FSU_REGISTER      3
+#define VALID_SIP_REGISTER      4
+#define PTT_SEND_EVENT          5
+#define PTT_RESPONSE_EVENT      6
+#define CONFIG_RECEIVED         7
+#define SERVER_REG_BCAST_EVENT  8
+#define VALID_KEY_SEQ_EVENT     9
+#define P2P_CALL_EVENT          10
+#define P2P_RESET_EVENT         11
+#define WRONG_CONFIG            12
+#define RINGING_OFF_HOOK_EVENT  13
+#define CALL_OFF_HOOK_EVENT     14
+#define PVT_CALL_TIMEOUT        15
+#define GLOBAL_ALM_EVENT        16
+#define PG_CALL_TIMEOUT         17
+#define GLOBAL_CALL_EVENT       18
+#define GLOBAL_RESET_EVENT      19
+#define ICOM_CALL_EVENT         20
+#define ICOM_RESET_EVENT        21
+#define NEG_RES_EVENT           22
+#define WAKE_UP_EVENT           23
+#define INCOMING_GROUP_CALL_EVENT  24
+#define GROUP_RESET_EVENT          25
+#define GRP_PTT_REQUEST_EVENT      26
+#define GLOBAL_RX_ALM_EVENT        27
+#define GLOBAL_RX_CALL_EVENT       28
+#define GLOBAL_RESET_RX_EVENT      29
+#define GRP_INDIVIDUAL_RESET_EVENT 30
+#define DIAGNOSTIC_EVENT           31
+#define DIAGNOSTIC_PVT_OK          32
+#define DIAGNOSTIC_PVT_NOT_OK      33
+#define DIAGNOSTIC_SPK_OK          34
+#define DIAGNOSTIC_SPK_NOT_OK      35
+#define ICOM_STATE_CHANGE_EVENT    36
+#define ACK_RESPONSE			   37
+#define GRP_PTT_RELEASE_EVENT      38
+#define INCOMING_ZONE_CALL_EVENT   39
+#define INCOMING_ZONE_CALL_RX_EVENT 40
+#define INCOMING_ZONE_ALM_EVENT     41
+#define INCOMING_ZONE_ALM_RX_EVENT 42
+#define ZONE_RESET_EVENT		   43
+#define ZONE_RESET_RX_EVENT        44
+#define CONF_ADD_EVENT             45
+#define  CONF_TIMER_UPDATE_EVENT   46
+#define PTT_RELEASE_EVENT          47
+#define BROADCAST_TIMEOUT_EVENT    48
+
+
+/**********CALL TYPES*****************/
+
+#define         P2P             '1'
+#define         GROUP           '2'
+#define         INTERCOM_RX     '3'
+#define         INTERCOM_TX_RX  '4'
+#define         GLOBAL          '5'
+#define         GLOBAL_ALARM    '6'
+#define         ZONE            '7'
+#define         ZONE_ALARM      '8'
+#define         AIM             '9'
+#define         EPBX            'e'
+#define         CONFERENCE      'c'
+#define         RESET           '0'
+#define         GROUP_TX_RX     'd'
+/**********************************/
+#define MAX_ETH_FRAME_LENGTH 1600
+#define UI_MSG_LENGTH        20
+#define SERVER_LIVE_TIMEOUT  30
+#define MAX_PG_VOLUME        12
+#define MAX_PVT_VOLUME       13
+#define MAX_MUSIC_VOLUME     10
+#define KEEP_ALIVE_TIMEOUT    8//60
+#define CONFIGURATION_RESPONSE_TIMEOUT 20
+#define SERVER_RESPONSE_TIMEOUT        10
+#define SPEECH_DETECTION_TIMEOUT  40
+
+#define   ZERO            0
+#define   ONE             1
+#define   TWO             2
+#define   THREE           3
+#define   FOUR            4
+#define   FIVE            5
+#define   SIX             6
+#define   SEVEN           7
+#define   EIGHT           8
+#define   NINE            9
+#define   TEN             10
+#define   ELEVEN          11
+#define   TWELVE          12
+#define   THIRTEEN        13
+#define   FOURTEEN        14
+#define   FIFTEEN         15
+#define   SIXTEEN         16
+#define   SEVENTEEN       17
+#define   EIGHTEEN        18
+#define   NINETEEN        19
+#define   TWENTY          20
+#define   TWENTY_ONE      21
+#define   TWENTY_TWO      22
+#define   TWENTY_THREE    23
+#define   TWENTY_FOUR     24
+#define   TWENTY_FIVE     25
+#define   TWENTY_SIX      26
+#define   TWENTY_SEVEN    27
+#define   TWENTY_EIGHT    28
+#define   TWENTY_NINE     29
+#define   THIRTY          30
+#define   THIRTY_ONE      31
+#define   THIRTY_TWO      32
+#define   THIRTY_THREE    33
+#define   THIRTY_FOUR     34
+#define   THIRTY_FIVE     35
+#define   THIRTY_SIX      36
+#define   THIRTY_SEVEN    37
+#define   THIRTY_EIGHT    38
+#define   THIRTY_NINE     39
+#define   FOURTY          40
+#define   FOURTY_ONE      41
+#define   FOURTY_TWO      42
+#define   FOURTY_THREE    43
+#define   FOURTY_FOUR     44
+#define   FOURTY_FIVE     45
+#define   FOURTY_SIX      46
+#define   FOURTY_SEVEN    47
+#define   FOURTY_EIGHT    48
+#define   FOURTY_NINE     49
+#define   FIFTY           50
+#define   MAX_DIRECT_CALL_KEY_INFO_SIZE  250
+#define MAX_BUFFER_SIZE           256
+#define MAX_ICOM_DETAILS_SIZE     270
+#define MAX_CLIENTS               5
+#define DIAGNOSTIC_TIMER_PVT_PG   500
+#define THOUSAND                  1000
+void voip_stack_start(void);
+
+/* Called in case changing volume settings in OpenRG task */
+void volume_change(void);
+
+int is_line_enabled(int line);//060530 Avner phase 1
+int is_using_proxy(void);//060530 Avner phase 1
+
+
+extern int setchannelparamters_Phi(int ch, int payload, int ptime, int dtmf_inband, int dtmfpayload);
+#endif	/* _VOIP_MAIN_ */
+

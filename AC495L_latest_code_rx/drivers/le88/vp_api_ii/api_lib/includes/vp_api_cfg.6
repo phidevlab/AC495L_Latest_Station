@@ -1,0 +1,445 @@
+/** \file vp_api_cfg.h
+ * vp_api_cfg.h
+ *
+ * This file contains the configuration and compile time settings for 
+ * building appropriate VP-API library modules needed for any application.
+ *
+ * Copyright (c) 2004, Legerity Inc.
+ * All rights reserved
+ *
+ * This software is the property of Legerity , Inc. Please refer to the
+ * Non Disclosure Agreement (NDA) that you have signed for more information
+ * on legal obligations in using, modifying or distributing this file.
+ */
+
+#ifndef VP_API_CFG_H
+#define VP_API_CFG_H
+
+/******************************************************************************
+ * COMPILE-TIME OPTIONS:: API Libraries                                       *
+ *****************************************************************************/
+/* 
+ * Define (or undefine) the appropriate compile time switches based on your 
+ * application needs.
+ *
+ * NOTE: Such library selection compile time option(s) MUST be defined before 
+ * including any other file from VoicePath library. 
+ *
+ * NOTE: More than one Library modules can be built simultaneosuly (if needed).
+ */
+
+/* Define the API libraries that will be included in this build */
+#undef  VP_CC_790_SERIES    /**< define to build 790 specific API library; 
+                             *   undef to exclude this library. */
+
+#define VP_CC_880_SERIES    /**< define to build 880 specific API library; 
+                             *   undef to exclude this library. */
+
+#undef  VP_CC_580_SERIES    /**< define to build 580 specific API library; 
+                             *   undef to exclude this library. */
+
+/* DVP (VCP) library */
+#undef  VP_CC_DVP_SERIES    /**< define to build DVP specific API library; 
+                             *   undef to exclude this library. */
+/* VPP library */
+#define VP_CC_VPP_SERIES    /**< define to build VPP specific API library; 
+                             *   undef to exclude this library. */
+
+/******************************************************************************
+ * Include Files for the API                                                  *
+ *****************************************************************************/
+/* Include the API types for this architecture */
+#include "vp_api_types.h"
+
+/* Include option types so user can set the default behavior of the API */
+#include "vp_api_option.h"
+#include "vp_api_event.h"
+
+/******************************************************************************
+ * Device Context Size                                                        *
+ *****************************************************************************/
+/* 
+ * Define the maximum number of lines per device in your system. Note that a 
+ * system (i.e., all devices controlled by one instance of VP-API) could have 
+ * more than one type of device, each of those devices may support different 
+ * number of lines. For example in a system, device A might support 4 lines 
+ * and device B might support 32 lines, in such a scenario, the following macro 
+ * should be defined as 32. */
+#define VP_MAX_LINES_PER_DEVICE     (32)
+
+/* Define the following if you would like the API to protect(detect) the 
+ * applications in reentrant scenarios. When the following conditional compile 
+ * flag is enabled, it is the responsibility of the application to handle 
+ * VP_STATUS_IN_CRTCL_SECTN API function return code. This conditional flag may
+ * need to be defined (enabled) in multitasking applications (where more than 
+ * one task directly interacts with the VP-API directly). In a single threaded 
+ * application this conditional flag could be left disabled (undefined).
+ */
+#undef VP_CC_MULTI_THREAD_PROTECTION /* This has neither been completely 
+                                      * implemented nor tested yet, Please do 
+                                      * not define this */
+
+/******************************************************************************
+ * Library Specific COMPILE-TIME OPTIONS and defines                          *
+ *****************************************************************************/
+#ifdef VP_CC_790_SERIES
+/* CSLAC library can be configured to handle the interrupt in four different
+ * configurations. Choose (only) one of the mechanisms by defining one of the 
+ * following. */
+#define VP790_SIMPLE_POLLED_MODE        /* Define to use simple polled interrupt
+                                         * handling mode */
+#undef VP790_EFFICIENT_POLLED_MODE      /* Define to use efficient polled 
+                                         * interrupt handling mode */
+#undef VP790_INTERRUPT_LEVTRIG_MODE     /* Define to use level triggered 
+                                         * interrupt handling mode */
+#undef VP790_INTERRUPT_EDGETRIG_MODE    /* Define to use edge triggered 
+                                         * interrupt handling mode */
+#endif /* VP_CC_790_SERIES */
+
+#ifdef VP_CC_880_SERIES
+/* CSLAC library can be configured to handle the interrupt in four different
+ * configurations. Choose (only) one of the mechanisms by defining one of the 
+ * following. */
+#define VP880_SIMPLE_POLLED_MODE        /* Define to use simple polled interrupt
+                                         * handling mode */
+#undef VP880_EFFICIENT_POLLED_MODE      /* Define to use efficient polled 
+                                         * interrupt handling mode */
+#undef VP880_INTERRUPT_LEVTRIG_MODE     /* Define to use level triggered 
+                                         * interrupt handling mode */
+#undef VP880_INTERRUPT_EDGETRIG_MODE    /* Define to use edge triggered 
+                                         * interrupt handling mode */
+#undef VP880_INCLUDE_TESTLINE_CODE     /* Defines whether or not to enable
+                                         * 880 line test capabilities */ 
+
+/*
+ * Defines all possible Vp880 test line packages
+ */         
+#define VP880_LINE_TEST_AUDITOR 1
+#define VP880_LINE_TEST_PROFESSIONAL 2
+
+#ifdef VP880_INCLUDE_TESTLINE_CODE
+
+/* Define supported line test pacakge */
+#define VP880_INCLUDE_LINE_TEST_PACKAGE VP880_LINE_TEST_AUDITOR 
+
+#define EZ_MPI_PCM_COLLECT            /* Define to use api to collect
+                                     * PCM samples via the MPI bus */                                          
+#undef  EZ_MPI_PCM_COLLECT                                        
+
+/* Define the maximum expected computation time to arrive at results for 
+ * VpTestLineCallback() after having collected the necessary PCM samples. */    
+#define VP_PCM_CALCULATION_TIME 300     /* time is in ms */                                           
+
+#endif /* VP880_INCLUDE_TESTLINE_CODE */   
+
+#endif /* VP_CC_880_SERIES */
+
+#ifdef VP_CC_580_SERIES
+/* CSLAC library can be configured to handle the interrupt in four different
+ * configurations. Choose (only) one of the mechanisms by defining one of the 
+ * following. */
+#define VP580_SIMPLE_POLLED_MODE        /* Define to use simple polled interrupt
+                                         * handling mode */
+#undef VP580_EFFICIENT_POLLED_MODE      /* Define to use efficient polled 
+                                         * interrupt handling mode */
+#undef VP580_INTERRUPT_LEVTRIG_MODE     /* Define to use level triggered 
+                                         * interrupt handling mode */
+#undef VP580_INTERRUPT_EDGETRIG_MODE    /* Define to use edge triggered 
+                                         * interrupt handling mode */
+#endif
+
+/* 
+ * The following lines include necessary compile time options/definitions that 
+ * are required for boot loading DVP/VPP devices. By default, no compression 
+ * is selected for boot load image. If you  would to use compressed boot image, 
+ * the compile time options in the following lines need to be modified.
+ */
+
+/* All the following definitions are necessary only when DVP/VPP is involved */ 
+#if !defined(VP_CC_DVP_SERIES) && !defined(VP_CC_VPP_SERIES)
+
+typedef uint8 VpScratchMemType;
+
+#else /* !VP_CC_DVP_SERIES && !VP_CC_VPP_SERIES */
+/******************************************************************************
+ * COMPILE-TIME OPTIONS:: Boot load compression method and size               *
+ *****************************************************************************/
+#define VP_CLEAR_CODE_MEM
+    /*
+     * After VpBootLoad(), a VP_LINE_EVID_BOOT_CMP event is generated, and 
+     * VpGetResults() is then used to retrieve the loadChkSum value, which is 
+     * a checksum calculated over the DVP's code memory.  VpCodeCheckSum() 
+     * can then be called at any later time to verify that DVP code memory 
+     * has not been corrupted.
+     *
+     * With VP_CLEAR_CODE_MEM defined, VpBootLoad() clears all DVP code memory 
+     * to zeroes before loading the boot image. 
+     * With VP_CLEAR_CODE_MEM disabled, unused DVP code memory is not 
+     * initialized after a hardware reset.  However, the loadChkSum is 
+     * calculated over the entire DVP code memory space, including uninitialized 
+     * parts.  If it is important to you that the loadChkSum value stay the
+     * same after a hardware reset, then enable VP_CLEAR_CODE_MEM.
+     *
+     * This option adds a small amount of execution time to VpBootLoad(), when 
+     * state = VP_BOOT_STATE_FIRST or VP_BOOT_STATE_FIRSTLAST.
+     */
+
+/*
+ * Options related to BootLoad() decompression
+ */
+#undef VP_NO_COMPRESS
+    /* Define this option to exclude all decompression code from VpBootLoad().*/
+#define VP_COMPRESS_FAST
+    /*
+     *  Define this to include additional speed-optimized code to increase the
+     * speed of VpBootLoad().
+     */
+
+    /*
+     *  On our test platform, code size is affected by the above options as 
+     * shown:
+     *  VP_NO_COMPRESS      VP_COMPRESS_FAST        added code size
+     *  --------------      ----------------        ---------------
+     *  #define             (don't care)            0
+     *  #undef              #undef                  9.6 kB
+     *  #undef              #define                 12.2 kB
+     */
+
+    /*
+     * The following options determine the size of VpScratchMemType, and the 
+     * speed of VpBootLoad() when using a compressed DVP image.
+     */
+#define VP_COMPRESS_WINDOW_BITS 14
+    /*
+     * There is no advantage in increasing this to a value greater than the 
+     * value used when the DVP image was compressed.  Setting it to less than 
+     * the value used in compression will cause VpBootLoad() to fail.  [The 
+     * number of window bits used in compression is indicated in the DVP
+     * image's filename; for example, dvp.bin10z was compressed with 10 window 
+     * bits, etc.  If the number of bits is not indicated (*.binz), then 
+     * 8 bits were used.]  Higher values improve compression.  Don't 
+     * change this value unless you change the corresponding value used 
+     * in compressing the DVP image.  Adds (1 << VP_COMPRESS_WINDOW_BITS) 
+     * bytes to sizeof(VpScratchMemType).  This option can range from 
+     * 8 to 15.  */
+#define VP_COMPRESS_OUTBUF_PAGES 50
+    /* 
+     * Size of the buffer for holding data after it is decompressed, and before 
+     * it is sent to the HBI bus.  Must be greater than 0 and less than 512. 
+     * Larger values increase the speed of VpBootLoad().  If VP_COMPRESS_FAST 
+     * is defined, VP_COMPRESS_OUTBUF_PAGES should be at least 3.
+     * Adds (128 * VP_COMPRESS_OUTBUF_PAGES) bytes to sizeof(VpScratchMemType).
+     */
+
+#ifndef VP_NO_COMPRESS
+#include "zstructs.h"    /**< Components of VpScratchMemType */
+typedef struct {
+    struct VpZlibInflateStateType state;
+    VpZlibStreamType stream;
+    uint8 window[1 << VP_COMPRESS_WINDOW_BITS];
+    uint8 inflated[VP_COMPRESS_OUTBUF_PAGES * 128];
+} VpScratchMemType;
+#else /* VP_NO_COMPRESS */
+typedef uint8 VpScratchMemType;
+#endif /* VP_NO_COMPRESS */
+#endif  /* !VP_CC_DVP_SERIES && !VP_CC_VPP_SERIES */
+
+/******************************************************************************
+ * COMPILE-TIME OPTIONS:: Top level VP-API Default Device and Line Options    *
+ *****************************************************************************/
+/* The following defines specifify the default behavior of the device and line 
+ * used in the API */
+
+/* Default Dial Pulse Options specified in units of 125micro sec  */
+#define VP_OPTION_DEFAULT_DP_BREAK_MIN          (33 * 8)    /* == 33 ms */
+#define VP_OPTION_DEFAULT_DP_BREAK_MAX          (100 * 8)      
+#define VP_OPTION_DEFAULT_DP_MAKE_MIN           (17 * 8)
+#define VP_OPTION_DEFAULT_DP_MAKE_MAX           (75 * 8)
+#define VP_OPTION_DEFAULT_DP_INTER_DIG_MIN      (250 * 8)      
+#define VP_OPTION_DEFAULT_DP_FLASH_MIN          (250 * 8)
+#define VP_OPTION_DEFAULT_DP_FLASH_MAX          (1300 * 8)
+
+/* Default setting for Critical fault option */
+#define VP_OPTION_DEFAULT_CF_AC_DIS_EN          TRUE
+#define VP_OPTION_DEFAULT_CF_DC_DIS_EN          TRUE
+#define VP_OPTION_DEFAULT_CF_THERMAL_DIS_EN     TRUE
+
+/* Default setting for Zero cross option */
+#define VP_OPTION_DEFAULT_ZERO_CROSS            VP_OPTION_ZC_M4B
+
+/* Default setting for Ramp to standby option */
+#define VP_OPTION_DEFAULT_RAMP2STBY             0
+
+/* Default setting for Pulse mode option */
+#define VP_OPTION_DEFAULT_PULSE_MODE            VP_OPTION_PULSE_DECODE_OFF
+
+/* Default CODEC Mode */
+#define VP_OPTION_DEFAULT_CODEC_MODE            VP_OPTION_ALAW
+
+/* Default setting for PCM Highway option */
+#define VP_OPTION_DEFAULT_PCM_HWY               VP_OPTION_HWY_A
+
+/* Default setting for Loop back option */
+#define VP_OPTION_DEFAULT_LOOP_BACK             VP_OPTION_LB_OFF
+
+/* Default setting for Line state option */
+#define VP_OPTION_DEFAULT_LS_BAT_REV            FALSE
+#define VP_OPTION_DEFAULT_LS_BAT                VP_OPTION_BAT_AUTO
+
+/*
+ * Default Event Masks
+ * Some events are non-maskable and will be modified by the API.  The user can 
+ * arbitrarily set the mask bits here as needed.  A mask bit set to '0' means 
+ * the event is not masked.
+ * As a default mask all the events that are not defined in the version of 
+ * the API.
+ */
+#define VP_OPTION_DEFAULT_FAULT_EVENT_MASK    \
+        (((VP_EVCAT_FAULT_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_FAULT_UNDEFINED) & /* Mask those that are not defined */ \
+         (~VP_API_NONMASK_FAULT_EVENTS)) /*Unmask non maskable events */
+
+#define VP_OPTION_DEFAULT_SIGNALING_EVENT_MASK  \
+        (((VP_EVCAT_SIGNALING_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_SIGNALING_UNDEFINED) & /* Mask those that are not defined */ \
+         (~VP_API_NONMASK_SIGNALING_EVENTS))
+
+#define VP_OPTION_DEFAULT_RESPONSE_EVENT_MASK   \
+        (((VP_EVCAT_RESPONSE_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_RESPONSE_UNDEFINED) & /* Mask those that are not defined */ \
+         (~VP_API_NONMASK_RESPONSE_EVENTS))
+
+#define VP_OPTION_DEFAULT_TEST_EVENT_MASK       \
+        (((VP_EVCAT_TEST_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_TEST_UNDEFINED) & /* Mask those that are not defined */  \
+         (~VP_API_NONMASK_TEST_EVENTS))
+
+#define VP_OPTION_DEFAULT_PROCESS_EVENT_MASK    \
+        (((VP_EVCAT_PROCESS_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_PROCESS_UNDEFINED) & /* Mask those that are not defined */ \
+         (~VP_API_NONMASK_PROCESS_EVENTS))
+
+#define VP_OPTION_DEFAULT_FXO_EVENT_MASK        \
+        (((VP_EVCAT_FXO_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_FXO_UNDEFINED) & /* Mask those that are not defined */ \
+         (~VP_API_NONMASK_FXO_EVENTS))
+
+#define VP_OPTION_DEFAULT_PACKET_EVENT_MASK     \
+        (((VP_EVCAT_PACKET_MASK_ALL) | /* Please change ONLY this */   \
+           VP_EVCAT_PACKET_UNDEFINED) & /* Mask those that are not defined */ \
+         (~VP_API_NONMASK_PACKET_EVENTS))
+
+/* Default setting for Ring Control option */
+#define VP_OPTION_DEFAULT_RC_ZERO_CROSS         VP_OPTION_ZC_M4B
+#define VP_OPTION_DEFAULT_RC_RING_EXIT_DBNC_VAL (100 * 8) /* 100ms */
+#define VP_OPTION_DEFAULT_RC_RING_EXIT_STATE    VP_LINE_TALK
+
+/* Default setting for DTMF Mode option */
+#define VP_OPTION_DEFAULT_DM_DTMF_CONTROL_MODE  VP_OPTION_DTMF_DECODE_OFF
+#define VP_OPTION_DEFAULT_DM_DIRECTION          VP_DIRECTION_US
+
+/* Default setting for PCM TX/RX path control */
+#define VP_OPTION_DEFAULT_PCM_TXRX_CNTRL        VP_OPTION_PCM_BOTH
+
+/******************************************************************************
+ *     DVP library Specific other defines and conditional compile flags       *
+ ******************************************************************************/
+#ifdef VP_CC_DVP_SERIES 
+/* Define the following to wait for certain amount of time for DVP mailbox
+ * to become available. By enabling this conditional compile time option,
+ * application would rarely have to handle the VP_STATUS_MAILBOX_BUSY error
+ * (assuimg configured properly; more later). Basically when this conditional
+ * compile option is defined, API repeats checking for mailbox ownership (if
+ * it already does not own). This checking continues until either mailbox 
+ * ownership is acquired or maximum specified number of repetitions happen (in 
+ * which case API throws an error).
+ * If this compile flag is undefined, API checks for mailbox only once.
+ */
+#define WAIT_TO_ACQUIRE_DVP_MB
+
+/* Define the number iterations host should wait for mailbox owenership */
+#define ITERATIONS_TO_WAIT_FOR_DVP_MB      (100000)
+
+/* Define the following to enable debug print statements from the DVP API */
+#define DEBUG_DVP_API
+
+#ifdef DEBUG_DVP_API
+#include <stdio.h>
+/* Define the following as necessary to redirect the debug output */
+#define term_printf printf
+
+/* Further classification enabling/disabling debug output */
+#define DEBUG_DVP_API_MB            /* MailBox related debug output */
+#undef DEBUG_DVP_API_EVENT         /* Event masking related debug output */
+#define DEBUG_DVP_API_DEFLT_OPTN    /* Default option debugging */
+#endif /* DEBUG_DVP_API */
+
+#endif /* VP_CC_DVP_SERIES */
+
+/******************************************************************************
+ *     VPP library Specific other defines and conditional compile flags       *
+ ******************************************************************************/
+#ifdef VP_CC_VPP_SERIES 
+/* Define the following to wait for certain amount of time for VPP mailbox
+ * to become available. By enabling this conditional compile time option,
+ * application would rarely have to handle the VP_STATUS_MAILBOX_BUSY error
+ * (assuimg configured properly; more later). Basically when this conditional
+ * compile option is defined, API repeats checking for mailbox ownership (if
+ * it already does not own). This checking continues until either mailbox 
+ * ownership is acquired or maximum specified number of repetitions happen (in 
+ * which case API throws an error).
+ * If this compile flag is undefined, API checks for mailbox only once.
+ */
+#define WAIT_TO_ACQUIRE_VPP_MB
+
+/* Define the number iterations host should wait for mailbox owenership */
+#define ITERATIONS_TO_WAIT_FOR_VPP_MB      (100000)
+
+/* Define the following to enable exiting the application upon HBI errors. */
+#define EXIT_ON_VPP_HBI_ACCESS_ERROR
+
+
+/* Define the following to enable debug print statements from the VPP API */
+#define DEBUG_VPP_API
+
+/* Further classification enabling/disabling debug output */
+#ifdef DEBUG_VPP_API
+#include <stdio.h>
+#define term_printf printf
+
+#undef DEBUG_VPP_API_EVENT      /* Conditional compile for debug messages from
+                                 * Event related functions */
+#undef DEBUG_VPP_API_MAILBOX    /* Conditional compile for mailbox messages */
+#define DEBUG_VPP_API_PROFILE   /* Conditional compile for profile related 
+                                 * aspects*/
+#endif /* DEBUG_VPP_API */
+
+#endif /* VP_CC_VPP_SERIES */
+
+/******************************************************************************
+ *                      API Debug output redirection                          *
+ ******************************************************************************/
+#if defined(DEBUG_DVP_API) || defined(DEBUG_VPP_API)
+#ifndef term_printf
+#include <stdio.h>
+/* Define the following as necessary to redirect the debug output */
+#define term_printf printf
+#endif /* term_printf */
+#endif /* DEBUG_DVP_API || DEBUG_VPP_API */
+
+/******************************************************************************
+ * Library Specific default options                                           *
+ *****************************************************************************/
+/* VoicePath API provides a mechanism where individual library's default 
+ * options could be different compared to top level API default options.
+ * If you need such a change please review the file included below.
+ */
+#include "vp_api_lib_cfg.h"
+
+/*
+ * define the following flag to enable deprectated features and names.
+ * Deprecated features and names are not guarenteed beyond one API release.
+ */
+#undef VP_DEPRECATED_FEATURES
+
+#endif /* VP_API_CFG_H */
