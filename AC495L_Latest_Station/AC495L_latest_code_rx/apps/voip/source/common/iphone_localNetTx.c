@@ -26,50 +26,54 @@
 #include <sys/msg.h>
 #include <fcntl.h>
 #include <signal.h>
-
+#include "voip_main.h"
 #include "iphone_localNetTerm.h"
 
 #include "acl_log.h"
 
 /****************************************************************************
-*                                                                            
-*	Name:		networking_rtpSocketSend			 			                                                     
-*----------------------------------------------------------------------------                                                                            
-*	Abstract:		sending RTP+T.38 packets to network 
-*----------------------------------------------------------------------------                                                                            
-*	Input:		 
-*----------------------------------------------------------------------------                                                                            
-*  	Output:		none			                                                  
-*----------------------------------------------------------------------------                                                                            
-*	Returns: 	case of error -1 else 0                           
+*
+*	Name:		networking_rtpSocketSend
+*----------------------------------------------------------------------------
+*	Abstract:		sending RTP+T.38 packets to network
+*----------------------------------------------------------------------------
+*	Input:
+*----------------------------------------------------------------------------
+*  	Output:		none
+*----------------------------------------------------------------------------
+*	Returns: 	case of error -1 else 0
 ******************************************************************************/
 int networking_rtpSocketSend(char* buff, int len, int channel)
 {
+    //printf("+++++++++++++Inside networking_rtpSocketSend\n");
 	int						rc;
 
 	socklen_t				sockAddrSize;
 	struct sockaddr_in		clientAddr;   /* one for active and one for conf */
 	channelInfo_s			*channelInfo=NULL;
-
+    unsigned int hton;
 	channelInfo = networking_rtpChannelInfoGet(channel);
+
 	if (channelInfo == NULL)
 	{
-		acl_log(ACL_LOG_ERROR,"networking_UdpSocketSend: networking_channelInfoGet failed\n");
+		acl_log(ACL_LOG_ERROR,"networking_rtpSocketSend: networking_channelInfoGet failed\n");
 		return ACL_FAILURE;
 	}
-	
+
 	sockAddrSize = sizeof(struct sockaddr_in);
 
 	bzero((char *)&(clientAddr), sockAddrSize);
 	clientAddr.sin_family = AF_INET;
 	clientAddr.sin_port = htons(channelInfo->remoteNetTermInfo.port);
 	clientAddr.sin_addr.s_addr = inet_addr(channelInfo->remoteNetTermInfo.address);
+    //printf("clientAddr.sin_port:%d  clientAddr.sin_addr.s_addr:%s\n",clientAddr.sin_port,clientAddr.sin_addr.s_addr);
+
 
 	if ((0 == clientAddr.sin_port) || (0 == clientAddr.sin_addr.s_addr))
 		return 0;
 
 	/* send packet to the network */
-	rc = sendto(channelInfo->sFd, 
+	rc = sendto(channelInfo->sFd,
                			buff,
 				len,
 				0,
@@ -89,7 +93,7 @@ int networking_transmitStunReq(char* buff,
 
 	socklen_t				sockAddrSize;
 	struct sockaddr_in		clientAddr;   /* one for active and one for conf */
-	
+
 	sockAddrSize = sizeof(struct sockaddr_in);
 
 	bzero((char *)&(clientAddr), sockAddrSize);
@@ -101,7 +105,7 @@ int networking_transmitStunReq(char* buff,
 		return 0;
 
 	/* send packet to the network */
-	rc = sendto(socketSfd, 
+	rc = sendto(socketSfd,
                			buff,
 				len,
 				0,
@@ -114,7 +118,7 @@ int networking_transmitStunReq(char* buff,
 /******************************************************************************/
 
 
-/* end of iphone_netTx.c */ 
+/* end of iphone_netTx.c */
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/

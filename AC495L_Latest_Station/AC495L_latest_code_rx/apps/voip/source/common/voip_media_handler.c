@@ -129,7 +129,7 @@ void transmitter(char* buff, int len, int channel, acgEProtocol protocol)
 	if(acl_UDPrxJobTerminate||acl_RTCPrxJobTerminate){
 		pthread_exit(NULL);
 	}
-   // printf("TRANSMITTE\n");
+    printf("#############TRANSMITTE\n");
 	/* send to dsp */
 	if(acgDecodeMedia(channel, &DecodeMedia) != ACG_SUCCESS )
 	{
@@ -191,8 +191,9 @@ void receiverStunRes( int sFd )
 ******************************************************************************/
 void *receiver(void* arg)
 {
-	int 						status;
 
+	int 						status;
+    char call_type;
 	acgTGetMedia 				GetMedia;
 
 	memset(&GetMedia, 0, sizeof(GetMedia));
@@ -207,22 +208,26 @@ void *receiver(void* arg)
 
 		/* get a media packet from the dsp */
 		status = acgGetMedia(&GetMedia);
-
+         pthread_mutex_lock(&lock_call_type);
+        call_type=pvt_call.type ;
+        pthread_mutex_unlock(&lock_call_type);
 		switch(status)
 		{
 			case ACG_SUCCESS:
 
 				if((GetMedia.MediaProtocol == ACG_PROTOCOL__RTP)||(GetMedia.MediaProtocol == ACG_PROTOCOL__FAX))
 				{
-
-                        if((VOIP_CONN_MODE_RECV != networking_rtpModeGet(GetMedia.Channel))  && (VOIP_CONN_MODE_NOT_SET != networking_rtpModeGet(GetMedia.Channel)))
+                       // printf("***********case ACG_SUCCESS:\n");
+                       // printf("************call_type:%c",call_type);
+                        if(call_type==P2P/*(VOIP_CONN_MODE_RECV != networking_rtpModeGet(GetMedia.Channel))  && (VOIP_CONN_MODE_NOT_SET != networking_rtpModeGet(GetMedia.Channel))*/)
 			            {
 			              	status = networking_rtpSocketSend(tx_message,GetMedia.Len,GetMedia.Channel);
-			              //	printf("getting media form channel %d\n",GetMedia.Channel);
+			              	printf("getting media form channel %d\n",GetMedia.Channel);
 			            }
 			        	else
 			        	{
-			               		//printf("receiver (RTP) - in VOIP_CONN_MODE_RECV   channel = %d   mode = %d", GetMedia.Channel, networking_rtpModeGet(GetMedia.Channel));
+
+			               	//	printf("receiver (RTP) - in VOIP_CONN_MODE_RECV   channel = %d   mode = %d", GetMedia.Channel, networking_rtpModeGet(GetMedia.Channel));
 			        	}
                         paging_send_packet(tx_message,GetMedia.Len,GetMedia.Channel);
 				}
@@ -238,7 +243,7 @@ void *receiver(void* arg)
 			                {
 			                	DBG_PRINT("receiver (RTCP) - in VOIP_CONN_MODE_RECV");
 			                }
-                          //  paging_send_packet(tx_message,GetMedia.Len,GetMedia.Channel);
+                            //paging_send_packet(tx_message,GetMedia.Len,GetMedia.Channel);
 				}
 				else if(GetMedia.MediaProtocol == ACG_PROTOCOL__PLAYBACK_COMMAND)
 				{   /* = AC5X_PROTOCOL__VOICE_TDM_PLAYBACK */

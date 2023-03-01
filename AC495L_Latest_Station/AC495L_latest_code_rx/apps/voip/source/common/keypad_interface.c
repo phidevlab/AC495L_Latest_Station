@@ -102,6 +102,7 @@ void validate_key(keypad_keys cInkey)
     //c_Fsu_state='5';
      switch(c_Fsu_state)
     {
+
         case UI_IDLE_STATE:
 
             switch(g_iKeyboard_state)
@@ -120,8 +121,8 @@ void validate_key(keypad_keys cInkey)
 
                         sprintf(&g_arcLCDMsg[SEVEN],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                         //update_lcd_msg(g_arcLCDMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                           send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"                ",ZERO,LCD_ADDRESS,IOCTL_PRINT);
-                           send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,ZERO,LCD_ADDRESS,IOCTL_PRINT);
+                           //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"                ",ZERO,LCD_ADDRESS,IOCTL_PRINT);
+                           //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,ZERO,LCD_ADDRESS,IOCTL_PRINT);
 
                         g_ucDialed_Sequence_No++;
                         g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
@@ -131,7 +132,7 @@ void validate_key(keypad_keys cInkey)
                     {
                 switch(cInkey)
                 {
-
+                   printf("^^^^^^cInkey:%d\n",cInkey);
                     case ZONE_KEY:
                         printf("ZONE KEY PRESSED \n");
                         g_iarcDialed_Key_Array[g_ucDialed_Sequence_No] = ZONE;
@@ -165,7 +166,7 @@ void validate_key(keypad_keys cInkey)
                         bzero(&g_IcomLcdMsg,sizeof(g_IcomLcdMsg));
                         memcpy(g_IcomLcdMsg,"CH: ", THREE);
                         //update_lcd_msg(g_IcomLcdMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                        //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
+                        send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
 
 
                     break;
@@ -343,21 +344,21 @@ void validate_key(keypad_keys cInkey)
 
 					   case RESET_KEY:
 
-                            send_msg_ui_lcd(INIT_STATE,LCD,LINE2,CONTINUE_DISPLAY,"RESET_KEY       ",ZERO,
-                            LCD_ADDRESS,IOCTL_PRINT);
+                            //send_msg_ui_lcd(INIT_STATE,LCD,LINE2,CONTINUE_DISPLAY,"RESET_KEY       ",ZERO,
+                           // LCD_ADDRESS,IOCTL_PRINT);
 
                             clear_validation_processing();
                             if(lcd_fcs_default_icom == 0)
                             {
                                 sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                LCD_ADDRESS,IOCTL_PRINT);
+                                //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                             //   LCD_ADDRESS,IOCTL_PRINT);
                             }
                             else
                             {
                                 sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                LCD_ADDRESS,IOCTL_PRINT);
+                                //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                              //  LCD_ADDRESS,IOCTL_PRINT);
                             }
 
 					   break;
@@ -372,9 +373,9 @@ void validate_key(keypad_keys cInkey)
                                         g_iarcDialed_Key_Array[g_ucDialed_Sequence_No] = cInkey;
                                         sprintf(&g_arcLCDMsg[EIGHT],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         //update_lcd_msg(g_arcLCDMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                       // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,NO_LCD_CLR,0);
-                                        send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,ZERO,
-                                        LCD_ADDRESS,IOCTL_PRINT);
+                                        send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,NO_LCD_CLR,0);
+                                        //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,ZERO,
+                                      //  LCD_ADDRESS,IOCTL_PRINT);
                                         printf("Pressed key=%d\n",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
                                         g_ucDialed_Sequence_No++;
@@ -384,22 +385,22 @@ void validate_key(keypad_keys cInkey)
                                         printf("Invalid Key!\n");
 //                                        send_data_to_lcd(2, "Invalid Key Pressed");
                                         //update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                        send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"  INVALID_KEY   ",ZERO,
-                                        LCD_ADDRESS,IOCTL_PRINT);
+                                        //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"  INVALID_KEY   ",ZERO,
+                                       // LCD_ADDRESS,IOCTL_PRINT);
 
                                         clear_validation_processing();
 
                                         if(lcd_fcs_default_icom == 0)
                                         {
                                             sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                            send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                            LCD_ADDRESS,IOCTL_PRINT);
+                                            //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                         //   LCD_ADDRESS,IOCTL_PRINT);
                                         }
                                         else
                                         {
                                             sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                            send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                            LCD_ADDRESS,IOCTL_PRINT);
+                                            //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                         //   LCD_ADDRESS,IOCTL_PRINT);
                                         }
                                     }
                                     break;
@@ -410,8 +411,8 @@ void validate_key(keypad_keys cInkey)
                                         g_iarcDialed_Key_Array[g_ucDialed_Sequence_No] = cInkey;
                                         sprintf(&g_arcLCDMsg[NINE],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         // update_lcd_msg(g_arcLCDMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                        send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,ZERO,
-                                        LCD_ADDRESS,IOCTL_PRINT);
+                                        //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_arcLCDMsg,ZERO,
+                                       // LCD_ADDRESS,IOCTL_PRINT);
                                         printf("PRessed key=%d\n",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         g_ucDialed_Sequence_No++;
                                         if(g_ucDialed_Sequence_No == NO_OF_PTP_CALL_DIGITS)
@@ -427,22 +428,22 @@ void validate_key(keypad_keys cInkey)
                                         printf("Invalid Key!\n");
 //                                        send_data_to_lcd(2, "Invalid Key Pressed");
                                         //update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                        send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"  INVALID_KEY   ",ZERO,
-                                        LCD_ADDRESS,IOCTL_PRINT);
+                                        //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"  INVALID_KEY   ",ZERO,
+                                      //  LCD_ADDRESS,IOCTL_PRINT);
 
                                         clear_validation_processing();
 
                                         if(lcd_fcs_default_icom == 0)
                                         {
                                             sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                            send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                            LCD_ADDRESS,IOCTL_PRINT);
+                                            //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                           // LCD_ADDRESS,IOCTL_PRINT);
                                         }
                                         else
                                         {
                                             sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                            send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                            LCD_ADDRESS,IOCTL_PRINT);
+                                            //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                           // LCD_ADDRESS,IOCTL_PRINT);
                                         }
                                     }
                                     break;
@@ -555,20 +556,20 @@ void validate_key(keypad_keys cInkey)
                     {
                       case RESET_KEY:
 					   		//update_lcd_msg("RESET_KEY        ",LINE2,LCD_CLR_SECOND_LINE,0);
-					   		send_msg_ui_lcd(INIT_STATE,LCD,LINE2,CONTINUE_DISPLAY,"  RESET_KEY     ",ZERO,
-                            LCD_ADDRESS,IOCTL_PRINT);
+					   		//send_msg_ui_lcd(INIT_STATE,LCD,LINE2,CONTINUE_DISPLAY,"  RESET_KEY     ",ZERO,
+                            //LCD_ADDRESS,IOCTL_PRINT);
                             clear_validation_processing();
                             if(lcd_fcs_default_icom == 0)
                             {
                                 sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                LCD_ADDRESS,IOCTL_PRINT);
+                                //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                               // LCD_ADDRESS,IOCTL_PRINT);
                             }
                             else
                             {
                                 sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                LCD_ADDRESS,IOCTL_PRINT);
+                                //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                               // LCD_ADDRESS,IOCTL_PRINT);
                             }
 					   break;
 
@@ -586,7 +587,7 @@ void validate_key(keypad_keys cInkey)
                                       //memcpy(g_IcomLcdMsg,"ICOM: ", FIVE);
                                        sprintf(&g_IcomLcdMsg[THREE],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                        //update_lcd_msg(g_IcomLcdMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                      // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
+                                       send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
                                        g_ucDialed_Sequence_No++;
                                        break;
                                     }
@@ -595,21 +596,21 @@ void validate_key(keypad_keys cInkey)
                                         printf("DIGIT 0 Invalid Key!\n");
 
                                         //update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                        //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
+                                        send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
                                         clear_validation_processing();
                                        // sprintf(g_cLine2_buf,"STN_NO:%d  IDLE  ",stn_config.logical_id);
-                                       // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE,0);
+                                        send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE,0);
                                         if(lcd_fcs_default_icom == 0)
                                         {
                                             sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                            send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                            LCD_ADDRESS,IOCTL_PRINT);
+                                            //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                           // LCD_ADDRESS,IOCTL_PRINT);
                                         }
                                         else
                                         {
                                             sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                            send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                            LCD_ADDRESS,IOCTL_PRINT);
+                                            //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                          //  LCD_ADDRESS,IOCTL_PRINT);
                                         }
 
                                     }
@@ -626,7 +627,7 @@ void validate_key(keypad_keys cInkey)
 
                                                 sprintf(&g_IcomLcdMsg[FOUR],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                                 //update_lcd_msg(g_IcomLcdMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                                //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
+                                                send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
 
                                                 g_ucDialed_Sequence_No++;
                                                 if(g_ucDialed_Sequence_No == NO_OF_GROUP_CALL_DIGITS)
@@ -642,19 +643,19 @@ void validate_key(keypad_keys cInkey)
                                             {
                                                 printf("DIGIT 1 1 Invalid Key!\n");
                                                 update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                               // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
+                                                 send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
                                                 clear_validation_processing();
                                                 if(lcd_fcs_default_icom == 0)
                                                 {
                                                     sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                                    send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                    LCD_ADDRESS,IOCTL_PRINT);
+                                                    //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                   // LCD_ADDRESS,IOCTL_PRINT);
                                                 }
                                                 else
                                                 {
                                                     sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                                    send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                    LCD_ADDRESS,IOCTL_PRINT);
+                                                    //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                   // LCD_ADDRESS,IOCTL_PRINT);
                                                 }
                                             }
                                             break;
@@ -666,7 +667,7 @@ void validate_key(keypad_keys cInkey)
 
                                                 sprintf(&g_IcomLcdMsg[FOUR],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                                 //update_lcd_msg(g_IcomLcdMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                                 //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
+                                                 send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
 
                                                 g_ucDialed_Sequence_No++;
                                                 if(g_ucDialed_Sequence_No == NO_OF_GROUP_CALL_DIGITS)
@@ -682,19 +683,19 @@ void validate_key(keypad_keys cInkey)
                                             {
                                                 printf("DIGIT 1 2 Invalid Key!\n");
                                                  update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                                //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
+                                                send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
                                                 clear_validation_processing();
                                                 if(lcd_fcs_default_icom == 0)
                                                 {
                                                     sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                                    send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                    LCD_ADDRESS,IOCTL_PRINT);
+                                                    //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                //    LCD_ADDRESS,IOCTL_PRINT);
                                                 }
                                                 else
                                                 {
                                                     sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                                    send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                    LCD_ADDRESS,IOCTL_PRINT);
+                                                    //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                 //   LCD_ADDRESS,IOCTL_PRINT);
                                                 }
 
                                             }
@@ -707,7 +708,7 @@ void validate_key(keypad_keys cInkey)
                                                 strcat(g_IcomLcdMsg, &g_iarcDialed_Key_Array[2]);
                                                 sprintf(&g_IcomLcdMsg[FOUR],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                                 //update_lcd_msg(g_IcomLcdMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                                //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
+                                                send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
 
                                                 g_ucDialed_Sequence_No++;
                                                 if(g_ucDialed_Sequence_No == NO_OF_GROUP_CALL_DIGITS)
@@ -723,19 +724,19 @@ void validate_key(keypad_keys cInkey)
                                             {
                                                 printf("DIGIT 1 3 Invalid Key!\n");
                                                 update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                                //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
+                                                send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
                                                 clear_validation_processing();
                                                 if(lcd_fcs_default_icom == 0)
                                                 {
                                                     sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                                    send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                    LCD_ADDRESS,IOCTL_PRINT);
+                                                    //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                  //  LCD_ADDRESS,IOCTL_PRINT);
                                                 }
                                                 else
                                                 {
                                                     sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                                    send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                    LCD_ADDRESS,IOCTL_PRINT);
+                                                    //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                 //   LCD_ADDRESS,IOCTL_PRINT);
                                                 }
 
                                             }
@@ -748,7 +749,7 @@ void validate_key(keypad_keys cInkey)
                                                 strcat(g_IcomLcdMsg, &g_iarcDialed_Key_Array[2]);
                                                 sprintf(&g_IcomLcdMsg[FOUR],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                                 //update_lcd_msg(g_IcomLcdMsg,LINE2,LCD_CLR_SECOND_LINE,0);
-                                                //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
+                                                send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_IcomLcdMsg,LCD_CLR_SECOND_LINE,0);
 
                                                 g_ucDialed_Sequence_No++;
                                                 if(g_ucDialed_Sequence_No == NO_OF_GROUP_CALL_DIGITS)
@@ -764,19 +765,19 @@ void validate_key(keypad_keys cInkey)
                                             {
                                                     printf("DIGIT 1 4 Invalid Key!\n");
                                                     update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_SECOND_LINE,0);
-                                                   // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
+                                                    send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY        ",LCD_CLR_SECOND_LINE,0);
                                                     clear_validation_processing();
                                                     if(lcd_fcs_default_icom == 0)
                                                     {
                                                         sprintf(g_cLine3_buf,"STN_NO:%d  IDLE",stn_config.logical_id);
-                                                        send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                        LCD_ADDRESS,IOCTL_PRINT);
+                                                        //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                       // LCD_ADDRESS,IOCTL_PRINT);
                                                     }
                                                     else
                                                     {
                                                         sprintf(g_cLine3_buf,"STN_NO:%d CH:%d ",stn_config.logical_id,lcd_fcs_default_icom);
-                                                        send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
-                                                        LCD_ADDRESS,IOCTL_PRINT);
+                                                        //send_msg_ui_lcd(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine3_buf,ZERO,
+                                                       // LCD_ADDRESS,IOCTL_PRINT);
                                                     }
                                             }
                                             break;
@@ -830,7 +831,7 @@ void validate_key(keypad_keys cInkey)
                                 bzero(&g_ConfLcdMsg,sizeof(g_ConfLcdMsg));
                                 memcpy(g_ConfLcdMsg,"CONF: ",FIVE);
                                // update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                //send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
                                 g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
                                 g_iKeyboard_state = CONF_KEY_DIALLING_MODE;
@@ -862,7 +863,7 @@ void validate_key(keypad_keys cInkey)
 
                                         sprintf(&g_ConfLcdMsg[FIVE],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         //update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                        //send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                        send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
                                         g_ucDialed_Sequence_No++;
                                         g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
@@ -880,7 +881,7 @@ void validate_key(keypad_keys cInkey)
 
                                         sprintf(&g_ConfLcdMsg[SIX],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         //update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                        //send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                        send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
                                         g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
                                         g_ucDialed_Sequence_No++;
@@ -890,10 +891,10 @@ void validate_key(keypad_keys cInkey)
                                         printf("Invalid Key!\n");
 //                                        send_data_to_lcd(2, "Invalid Key Pressed");
                                         //update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                        //send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                        send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
                                         clear_validation_processing();
                                        // sprintf(g_cLine2_buf,"STN_NO:%d  IDLE  ",stn_config.logical_id);
-                                       // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE);
+                                        send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE);
                                     }
                                     break;
 
@@ -907,7 +908,7 @@ void validate_key(keypad_keys cInkey)
 
                                         sprintf(&g_ConfLcdMsg[SEVEN],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                          //update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                         //send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                         send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
 
                                         g_ucDialed_Sequence_No++;
@@ -925,10 +926,10 @@ void validate_key(keypad_keys cInkey)
 //                                        send_data_to_lcd(2, "Invalid Key Pressed");
 
                                        // update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                       //send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                       send_msg_ui(P2P_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
                                         clear_validation_processing();
                                         //sprintf(g_cLine2_buf,"STN_NO:%d  IDLE  ",stn_config.logical_id);
-                                        //send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE);
+                                        send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE);
                                     }
                                     break;
                             }
@@ -937,12 +938,25 @@ void validate_key(keypad_keys cInkey)
                     }
 
             break;
-
+///added_anuja
         case  UI_RINGBACK_STATE:
 
                     switch(cInkey)
                     {
 
+                      case RESET_KEY:
+                      printf("^^RESET KEY PRESSED^^^^\n");
+                       g_iarcDialed_Key_Array[g_ucDialed_Sequence_No] = RESET;
+                      g_ucDialed_Sequence_No++;
+                      //clear_validation_processing();
+                      g_iarcDialed_Key_Array[g_ucDialed_Sequence_No] = cInkey;
+                      g_valid_key_sequence = SET;
+                      break;
+
+                      default:
+
+                          printf("*************** DEFAULT CASE OF UI_RINGBACK_STATE\n");
+                        break;
                     }
 
             break;
@@ -984,7 +998,7 @@ void validate_key(keypad_keys cInkey)
                      bzero(&g_ConfLcdMsg,sizeof(g_ConfLcdMsg));
                      memcpy(g_ConfLcdMsg,"CONF: ", FIVE);
                      //update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                     //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                     send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
 
                 //   strcat(g_arcLCDMsg, &g_iarcDialed_Key_Array[1]);
@@ -1013,7 +1027,7 @@ void validate_key(keypad_keys cInkey)
 
                                         sprintf(&g_ConfLcdMsg[FIVE],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                        // update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                       //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                       send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
                                         g_ucDialed_Sequence_No++;
                                         g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
@@ -1032,7 +1046,7 @@ void validate_key(keypad_keys cInkey)
 
                                         sprintf(&g_ConfLcdMsg[SIX],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                        // update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                       //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                       send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
                                         g_iInterdigit_timer=INTERDIGIT_TIMEOUT;
                                         g_ucDialed_Sequence_No++;
@@ -1043,11 +1057,11 @@ void validate_key(keypad_keys cInkey)
 //                                        send_data_to_lcd(2, "Invalid Key Pressed");
                                         //update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_FIRST_10_POSITION,0);
                                         //update_lcd_msg("DAIL_AGAIN ",LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                         //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY",LCD_CLR_FIRST_10_POSITION,0);
-                                         //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"DAIL_AGAIN",LCD_CLR_FIRST_10_POSITION,0);
+                                         send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY",LCD_CLR_FIRST_10_POSITION,0);
+                                         send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"DAIL_AGAIN",LCD_CLR_FIRST_10_POSITION,0);
                                         sleep(0.5);
                                         //update_lcd_msg("CONF",LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                        //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"CONF",LCD_CLR_FIRST_10_POSITION,0);
+                                        send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"CONF",LCD_CLR_FIRST_10_POSITION,0);
                                         clear_validation_processing();
                                     }
                                     break;
@@ -1062,7 +1076,7 @@ void validate_key(keypad_keys cInkey)
 
                                         sprintf(&g_ConfLcdMsg[SEVEN],"%d",g_iarcDialed_Key_Array[g_ucDialed_Sequence_No]);
                                         //update_lcd_msg(g_ConfLcdMsg,LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                        //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
+                                        send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_ConfLcdMsg,LCD_CLR_FIRST_10_POSITION,0);
 
                                         g_ucDialed_Sequence_No++;
                                         if(g_ucDialed_Sequence_No ==4)
@@ -1079,11 +1093,11 @@ void validate_key(keypad_keys cInkey)
 //                                        send_data_to_lcd(2, "Invalid Key Pressed");
                                          //update_lcd_msg("INVALID_KEY",LINE2,LCD_CLR_FIRST_10_POSITION,0);
                                          //update_lcd_msg("DAIL_AGAIN ",LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                         //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY",LCD_CLR_FIRST_10_POSITION,0);
-                                         //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"DAIL_AGAIN",LCD_CLR_FIRST_10_POSITION,0);
+                                         send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"INVALID_KEY",LCD_CLR_FIRST_10_POSITION,0);
+                                         send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"DAIL_AGAIN",LCD_CLR_FIRST_10_POSITION,0);
                                          sleep(0.5);
                                          //update_lcd_msg("CONF",LINE2,LCD_CLR_FIRST_10_POSITION,0);
-                                         //send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"CONF",LCD_CLR_FIRST_10_POSITION,0);
+                                         send_msg_ui(CONFERENCE_STATE,LCD,LINE2,CONTINUE_DISPLAY,"CONF",LCD_CLR_FIRST_10_POSITION,0);
 
                                         clear_validation_processing();
                                     }

@@ -23,7 +23,6 @@
 #include "AC49xDrv_Drv.h"
 #include <linux/delay.h>
 
-
                     /* This  driver is compiled only for the supported device types */
 #if (  (AC49X_DEVICE_TYPE == AC490_DEVICE) || (AC49X_DEVICE_TYPE == AC491_DEVICE) || (AC49X_DEVICE_TYPE == AC491L_DEVICE) || (AC49X_DEVICE_TYPE == AC491_491L_DEVICE) || (AC49X_DEVICE_TYPE == AC494_DEVICE) || (AC49X_DEVICE_TYPE == AC495_DEVICE) || (AC49X_DEVICE_TYPE == AC495L_DEVICE) || (AC49X_DEVICE_TYPE == AC496_DEVICE) || (AC49X_DEVICE_TYPE == AC496E_DEVICE) || (AC49X_DEVICE_TYPE == AC496E_DEVICE) || (AC49X_DEVICE_TYPE == AC497_DEVICE)  || (AC49X_DEVICE_TYPE == AC494E_DEVICE) || (AC49X_DEVICE_TYPE == AC495E_DEVICE) || (AC49X_DEVICE_TYPE == AC496D_DEVICE))
 
@@ -4025,9 +4024,7 @@ int Ac49xActivateOrDeactivate3WayConferenceConfiguration(int Device, int Channel
 	Packet.CrossGainMatrix14 =   0;      //pAttr->CrossGainMatrix14;
 	Packet.CrossGainMatrix21 =    0;    // pAttr->CrossGainMatrix21;
 	Packet.CrossGainMatrix22 =    0;  //    pAttr->CrossGainMatrix22;
-
-	Packet.CrossGainMatrix23 =    0;//pAttr->CrossGainMatrix23;////
-
+	Packet.CrossGainMatrix23 =    1;//pAttr->CrossGainMatrix23;
 	Packet.CrossGainMatrix24 = 0;//pAttr->CrossGainMatrix24;
 	Packet.CrossGainMatrix31 = 1;//pAttr->CrossGainMatrix31;
 	Packet.CrossGainMatrix32 = 1;//pAttr->CrossGainMatrix32;
@@ -9474,16 +9471,17 @@ void Ac49xSetDefaultOpenDeviceConfigurationAttr(Tac49xOpenDeviceConfigurationAtt
 	pAttr->DtmfGap								= DTMF_GAP__25_msec			;
 	pAttr->ModuleDebugPacketsTransferMethod		= MODULE_DEBUG_PACKETS_TRANSFER_METHOD__TO_DEBUG_PROTOCOL_ON_NETWORK_PORT;
 	pAttr->DeviceStatusIntervalResolution		= DEVICE_STATUS_INTERVAL_RESOLUTION__100_msec;
-	printk("#######AC49X_DEVICE_TYPE=%s,AC49X_NUMBER_OF_CHANNELS=%d\n",AC49X_DEVICE_TYPE,AC49X_NUMBER_OF_CHANNELS);
+
 	for(Channel=0; Channel<AC49X_NUMBER_OF_CHANNELS; Channel++)
         {
         pAttr->Channel[Channel].Slot               = Channel;
         pAttr->Channel[Channel].InterconnectedSlot = Channel+AC49X_NUMBER_OF_CHANNELS;
         }
-	pAttr->Channel[0].Slot               = 0;
+     /*   pAttr->Channel[0].Slot               = 0;
 	pAttr->Channel[1].Slot               = 1;
 	pAttr->Channel[2].Slot               = 32;
 	printk("pAttr->Channel[0].Slot=%d\npAttr->Channel[1].Slot=%d\npAttr->Channel[2].Slot=%d\n",pAttr->Channel[0].Slot,pAttr->Channel[1].Slot,pAttr->Channel[2].Slot);
+*/
 }
 
 /****************************************************************/

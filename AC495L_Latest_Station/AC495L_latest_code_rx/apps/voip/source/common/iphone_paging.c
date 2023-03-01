@@ -241,7 +241,7 @@ static void *paging_listen(void *arg)
     struct icom_contributor_details icom[32];
 	while(1)
 	{
-    // printf("$$$$$$$$$$$$$$inside paging listen thread\n");
+
 
      pthread_mutex_lock(&lock_call_type);
      call_type=pvt_call.type;
@@ -259,12 +259,11 @@ static void *paging_listen(void *arg)
 	 }
 	 else if(call_type==INTERCOM_TX_RX || call_type==INTERCOM_RX)
 	 {
-	     //printf("%%%%%%%%%call_type==INTERCOM_TX_RX || call_type==INTERCOM_RX\n");
          pthread_mutex_lock(&lock_icom_contr);
          cont1=icom_contributor_status_info[pvt_call.curr_icom_no].cont1;
          cont2=icom_contributor_status_info[pvt_call.curr_icom_no].cont2;
          pthread_mutex_unlock(&lock_icom_contr);
-       //  printf("%%%%%%%%%%ICOM call type=%c cont1=%d cont2=%d \n",call_type,cont1,cont2);
+         // printf("ICOM call type=%c cont1=%d cont2=%d \n",call_type,cont1,cont2);
 
 	 }
 
@@ -282,13 +281,11 @@ static void *paging_listen(void *arg)
         }
 
 
-      //  printf("$$$$$$$$$$ above for loop\n ");
+
         for(curFd = 0; curFd < pWork.pagingFdDBRealSize; curFd++)
        	{
-          //printf("1111111111111111FD_ISSET(pWork.pagingFdDB[curFd], &readyFds) = %d\n", pWork.pagingFdDB[curFd]);
 			if (FD_ISSET(pWork.pagingFdDB[curFd], &readyFds))
 			{
-			 // printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$FD_ISSET(pWork.pagingFdDB[curFd], &readyFds) = %d\n", pWork.pagingFdDB[curFd]);
               //  printf("in paging listen %d  \n",pWork.pagingFdDB[curFd]);
 				if((msgSize=recv(pWork.pagingFdDB[curFd], pWork.pagingBuff, PAGING_BUFF_LEN, 0)) < 0)
 				{
@@ -302,7 +299,6 @@ static void *paging_listen(void *arg)
               //  {
                 sprintf(buf,"%d\n",(pWork.currentSSRC>>24));
                 curr_ssrc=atoi(buf);
-
               //  }*/
                // printf("string %d %d\n",stn_config.logical_id,curr_ssrc);
 
@@ -311,7 +307,6 @@ static void *paging_listen(void *arg)
 
 				if(curr_ssrc!=stn_config.logical_id)
 				{
-				printf("###########################if(curr_ssrc!=stn_config.logical_id)\n");
 
 				//	printf("curr ssrc %d\n",curr_ssrc);
 						if(call_type==GROUP || call_type==GROUP_TX_RX)
@@ -329,25 +324,17 @@ static void *paging_listen(void *arg)
 						else if((call_type==INTERCOM_TX_RX)||(call_type==INTERCOM_RX))
 						{
 						  if(cont1==curr_ssrc)
-						  {
-                            printf("#####################contributor1 rx is :%d,%d\n",cont1,curr_ssrc);
-                            transmitter(pWork.pagingBuff, msgSize, PVT_CHANNEL, ACG_PROTOCOL__RTP);
-						  }
-
+						  transmitter(pWork.pagingBuff, msgSize, PVT_CHANNEL, ACG_PROTOCOL__RTP);
 
 							if(cont2==curr_ssrc)
-							{
-							  printf("#####################contributor2 rx is :%d,%d\n",cont2,curr_ssrc);
-							  transmitter(pWork.pagingBuff, msgSize, CONF_CHANNEL, ACG_PROTOCOL__RTP);
-							}
-
+							transmitter(pWork.pagingBuff, msgSize, CONF_CHANNEL, ACG_PROTOCOL__RTP);
 						}
 
 
 						if((pWork.pagingFdDB[curFd]==g_iPaging_fd)||(pWork.pagingFdDB[curFd]==g_iAim_fds[0])
                             ||(pWork.pagingFdDB[curFd]==g_izone_fds[pg_call.zone_no]))
 						{
-                            // printf("pg_call.type=%c \n",pg_call.type);
+                             printf(" ************INSIDE pg_call.type=%c \n",pg_call.type);
 						  transmitter(pWork.pagingBuff, msgSize, PG_CHANNEL, ACG_PROTOCOL__RTP);
 						}
 				}
@@ -472,7 +459,7 @@ static void create_icom_socket()
 	    }
 	    sprintf(icom_ip_addr,"%s%d",gc_icom_mul_start_addr,g_iIcom_mul_addr_start_offset+i);
 	   // printf("ICOM IP ADDRESS=%s\n",icom_ip_addr);
-        printf("Create ICOM Socket for group %d sockfd =%d,at %s\n",i,g_Iicom_fds[i],icom_ip_addr);
+      //  printf("Create ICOM Socket for group %d sockfd =%d,at %s:%d\n",i,g_Iicom_fds[i],icom_ip_addr,stn_config.def_icom_port);
 
 
          if (setsockopt(g_Iicom_fds[i], SOL_SOCKET, SO_REUSEADDR, &true_value, sizeof(true_value)) < 0) {
@@ -508,7 +495,6 @@ static void create_icom_socket()
         if (g_Iicom_fds[i] > pWork.pagingRtpMaxFd)
             pWork.pagingRtpMaxFd = g_Iicom_fds[i];
         FD_SET(g_Iicom_fds[i], &pWork.pagingRtpReceivingFds);
-
        //  sprintf(buf,"route add -net %s netmask 255.255.255.255 br-lan \n",icom_ip_addr);
       // system(buf);
  }
@@ -535,7 +521,7 @@ static void create_group_socket()
 	    }
 	    sprintf(group_ip_addr,"%s%d",gc_group_mul_start_addr,g_igroup_mul_addr_start_offset+i);
 	   // printf("GROUP IP ADDRESS=%s\n",group_ip_addr);
-        printf("Create GROUP Socket for group %d sockfd =%d,at %s\n",i,g_igroup_fds[i],group_ip_addr);
+       // printf("Create GROUP Socket for group %d sockfd =%d,at %s:%d\n",i,g_igroup_fds[i],group_ip_addr,stn_config.def_icom_port);
 
 
          if (setsockopt(g_igroup_fds[i], SOL_SOCKET, SO_REUSEADDR, &true_value, sizeof(true_value)) < 0) {
@@ -736,15 +722,18 @@ void crate_global_paging_socket()
 
 		if (bind(g_iPaging_fd, (struct sockaddr *) &paging_addr,sizeof (struct sockaddr_in)) == -1)
 	    {
-	        printf( "Bind error\n");
+	        printf( "Bind error in g_iPaging_fd---------- \n");
 	       // return;
 	    }
+	    else{
+            printf("Bind Success---------------\n");
+	    }
 
-	    if (setsockopt(g_iPaging_fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &pg_mreq,sizeof (struct ip_mreq)) == -1)
+	   /* if (setsockopt(g_iPaging_fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &pg_mreq,sizeof (struct ip_mreq)) == -1)
 	    {
 	        printf( "Join Group  Failed\n");
 			//break;
-	    }
+	    }*/
 
 	     if (setsockopt(g_iPaging_fd, IPPROTO_IP, IP_MULTICAST_LOOP, &loop,sizeof (loop)) == -1)
 	    {
@@ -768,6 +757,19 @@ void crate_global_paging_socket()
 
 void drop_membership(int fd)
 {
+///added
+    if(fd==g_iPaging_fd)
+    {
+        g_iGlobal_mem_dropped=1;
+
+        if (setsockopt(fd, IPPROTO_IP, IP_DROP_MEMBERSHIP, &pg_mreq,sizeof (struct ip_mreq)) == -1)
+        {
+	        printf( "Join Global  Failed\n");
+			//break;
+        }
+         else{ printf("GLOBAL MEMBERSHIP DROPPED\n");}
+    }
+
 
     if(fd==g_iAim_fds[stn_config.default_AIM-1])
     {
@@ -820,6 +822,21 @@ void drop_membership(int fd)
 
 void add_membership(int fd)
 {
+///added
+    printf("////////////////////////add_membership(int fd)\n");
+    if(fd==g_iPaging_fd)
+    {
+        printf("////////////////////////inside fd match\n");
+        g_iGlobal_mem_dropped=0;
+
+            ///getsockopt(int sockfd, int level, int optname,void *optval, socklen_t *optlen);
+        if (setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &pg_mreq,sizeof (struct ip_mreq)) == -1)
+        {
+	        printf( "Join Global  Failed\n");
+			//break;
+        }
+         else{ printf("GLOBAL MEMBERSHIP ADDED\n");}
+    }
     if(fd==g_iAim_fds[stn_config.default_AIM-1])
     {
         g_iAim_mem_dropped=0;
@@ -903,13 +920,13 @@ void paging_send_packet(char* buff, unsigned int len,int channel)
            // sprintf(buf,"%s%d",gc_global_mul_start_addr,g_iglobal_mul_addr_start_offset);
            strcpy(rtp_addr,g_cMulticast_tx_address);
            // strcpy(rtp_addr,buf);
-          //   printf("IF rtp addr %s\n",rtp_addr);
+             printf("IF rtp addr %s\n",rtp_addr);
     	}
     else {
             port=PVT_CALL_PORT;//stn_config.def_icom_port;
 
             strcpy(rtp_addr,g_cMulticast_tx_address);
-          //  printf("Else rtp addr %s\n",rtp_addr);
+            printf("Else rtp addr %s\n",rtp_addr);
     	}
 
 
@@ -947,6 +964,20 @@ int paging_is_paging_now()
 {
     return 0;//(pWork.page_state != PAGE_IDLE);
 }
+///added
+void p2p_dsp_stop_connection(int channel)
+{
+
+	close_channel(channel);
+}
+
+void p2p_dsp_start_connection(int channel)
+{
+	int payload;
+	payload=RTP_PAYLOAD_G722;
+	 setchannelparamters_Phi(channel,payload,PVT_PTIME,0,0);
+}
+
 void multicast_prepare_dsp(int channel)
 {
     if(channel==PVT_CHANNEL && g_uiDiagnostic_start_flag!=SET)
@@ -1031,7 +1062,7 @@ void start_alarm(int alarm_no)
 
 void close_channel(channel)
 {
-    printf("desecting channel %d \n",channel);
+    printf("deselecting channel %d \n",channel);
      //acl_rtp_unbind(channel);
     acgDeactivateRTP(channel);
   //  acgCloseChannel(channel, &ChannelParameters);

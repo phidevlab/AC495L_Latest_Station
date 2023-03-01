@@ -40,10 +40,10 @@ int lineValidityCheck(int line)
 	}
 	else
 	{
-		printf("[%s:%d]  line %d is out of range\n", __FUNCTION__, __LINE__, line);
+		//printf("[%s:%d]  line %d is out of range\n", __FUNCTION__, __LINE__, line);
 		return -1;
 	}
-	
+
 	DBG_PRINT("<<\r\n");
 }
 
@@ -52,7 +52,7 @@ void initVoipStatusHandler(void)
 	int i;
 
 	DBG_PRINT(">>\r\n");
-	
+
 	if(sem_init(&LineStatusSem, 0, 1) < 0)
 	{
 		printf("sem_init failed::LineStatusSem\r\n");
@@ -70,7 +70,7 @@ void initVoipStatusHandler(void)
 void destroyVoipStatusHandler(void)
 {
 	DBG_PRINT(">>\r\n");
-	
+
 	if(sem_destroy(&LineStatusSem) < 0)
 	{
 		perror("sem_destroy::LineStatusSem\r\n");
@@ -82,15 +82,15 @@ void destroyVoipStatusHandler(void)
 void getGatewayLineStateInfo(int line, line_state_t *pGateway_lines_state)
 {
 	DBG_PRINT(">>\r\n");
-	
+
 	if(lineValidityCheck(line) !=0)
 		return;
 
-	sem_wait(&LineStatusSem); 
+	sem_wait(&LineStatusSem);
 
 	memcpy(pGateway_lines_state, &gateway_lines_state[line], sizeof(line_state_t));
 
-	sem_post(&LineStatusSem); 
+	sem_post(&LineStatusSem);
 
 	DBG_PRINT("<<\r\n");
 }
@@ -99,15 +99,15 @@ void getGatewayLineStateInfo(int line, line_state_t *pGateway_lines_state)
 void SetLineStatus(int line, PORT_STATUS status)
 {
 	DBG_PRINT(">>\r\n");
-	
+
 	if(lineValidityCheck(line) !=0)
 		return;
 
-	sem_wait(&LineStatusSem); 
-	
+	sem_wait(&LineStatusSem);
+
 	gateway_lines_state[line].portStatus = status;
-	
-	sem_post(&LineStatusSem); 
+
+	sem_post(&LineStatusSem);
 
 	DBG_PRINT("<<\r\n");
 }
@@ -117,17 +117,17 @@ void SetLineStatus(int line, PORT_STATUS status)
 int getSpecificPortStatus(int line)
 {
 	PORT_STATUS status;
-	
+
 	DBG_PRINT(">>\r\n");
-	
+
 	if(lineValidityCheck(line) !=0)
 		return -1;
 
-	sem_wait(&LineStatusSem); 
+	sem_wait(&LineStatusSem);
 
 	status = gateway_lines_state[line].portStatus;
 
-	sem_post(&LineStatusSem); 
+	sem_post(&LineStatusSem);
 
 	DBG_PRINT("<<\r\n");
 
@@ -138,15 +138,15 @@ int setSpecificPortStatus(int line, PORT_STATUS status)
 {
 	int 			ret = 0;
 	PORT_STATUS 	currentLineStatus;
-	
+
 	DBG_PRINT(">>\r\n");
-	
+
 	if(lineValidityCheck(line) !=0)
 		return -1;
 
-	sem_wait(&LineStatusSem); 
+	sem_wait(&LineStatusSem);
 	currentLineStatus = gateway_lines_state[line].portStatus;
-	sem_post(&LineStatusSem); 
+	sem_post(&LineStatusSem);
 
 
 	switch(status)
@@ -160,17 +160,17 @@ int setSpecificPortStatus(int line, PORT_STATUS status)
 					printf("\nError in acl_sip_call_mngr_uninit_per_line()\n");
 					ret = -1;
 					break;
-				}	
+				}
 #endif /*ACL_SIP_APPLICATION*/
 
-				sem_wait(&LineStatusSem); 
+				sem_wait(&LineStatusSem);
 				gateway_lines_state[line].portStatus = status;
-				sem_post(&LineStatusSem); 
+				sem_post(&LineStatusSem);
 			}
 			break;
-		
+
 		case PORT_UNLOCK:
-		
+
 			if(currentLineStatus != status)
 			{
 #if defined(ACL_SIP_APPLICATION)
@@ -178,19 +178,19 @@ int setSpecificPortStatus(int line, PORT_STATUS status)
 					printf("\nError in acl_sip_call_mngr_init_per_line()\n");
 					ret = -1;
 					break;
-				}	
+				}
 #endif /*ACL_SIP_APPLICATION*/
-				
-				sem_wait(&LineStatusSem); 
+
+				sem_wait(&LineStatusSem);
 				gateway_lines_state[line].portStatus = status;
-				sem_post(&LineStatusSem); 
+				sem_post(&LineStatusSem);
 			}
 			break;
-		
+
 		default:
 			printf("\nUnsupported port status %d\n", status);
 			break;
-		
+
 	}
 
 	DBG_PRINT("<<\r\n");
@@ -201,7 +201,7 @@ int setSpecificPortStatus(int line, PORT_STATUS status)
 int getNumberOfPortExists()
 {
 	DBG_PRINT(">>\r\n");
-	
+
 	return CONFIG_RG_VOIP_MAX_NUMBER_OF_LINES;
 }
 

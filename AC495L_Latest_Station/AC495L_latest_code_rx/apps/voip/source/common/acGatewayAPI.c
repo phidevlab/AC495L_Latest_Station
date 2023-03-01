@@ -409,7 +409,6 @@ int Initialize_ssrc(int stn_no)
     updateChannelCmd.Command = ACG_START_FAX_VBD_CMD_E;
 
     updateChannelCmd.Channel = stn_no;
-    printf("updateChannelCmd.Channel:%d, stn_no:%d\n",stn_no,updateChannelCmd.Channel);
 
     updateChannelCmd.data = (void *)pParams;
     printf("<<\r\n");
@@ -481,6 +480,7 @@ int acgActivateRTP(int Channel)
 
 	activateRTPCmd.Command = ACG_ACTIVATE_RTP_CMD_E;
 	activateRTPCmd.Channel = Channel;
+	printf("activateRTPCmd.Command:%d, activateRTPCmd.Channel:%d\n ",activateRTPCmd.Command,activateRTPCmd.Channel);
 
 	if((retValue = (write(dspFd,(char *)&activateRTPCmd,sizeof(acgTCommand)))) != ACG_SUCCESS) {
 		ACG_Error_Print("error at write ACG_ACTIVATE_RTP_CMD_E\r\n");
@@ -519,8 +519,10 @@ int acgDeactivateRTP(int Channel)
 	{
 		retValue = write(dspFd,(char *)&deactivateRTPCmd,sizeof(acgTCommand));
 	}
+	printf("--------------retValue:%d\n",retValue);
 
 	retValue = ACG_SUCCESS;
+	printf("++++++++++retValue:%d\n",retValue);
 
 	ACG_Log_Print("<<\r\n");
 
@@ -975,7 +977,7 @@ int acgReinitializeEchoCanceller(int Channel)
 {
 	acgTCommand		reinitializeEchoCancellerCmd;
 	int 				retValue = ACG_SUCCESS;
-
+    printf("-------------------inside acgReinitializeEchoCanceller channel is :%d\n",Channel);
 	ACG_Log_Print(">>\r\n");
 
 	memset(&reinitializeEchoCancellerCmd, 0, sizeof(acgTCommand));

@@ -25,7 +25,7 @@
 #include "acl_voip_conf.h"
 
 #include <arpa/inet.h>
-
+int Channel0_rtpsfd;
 
 /**************************/
 /**** Forward Declarations ****/

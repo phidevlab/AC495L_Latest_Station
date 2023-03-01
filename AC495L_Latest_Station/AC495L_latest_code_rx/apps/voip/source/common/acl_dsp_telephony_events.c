@@ -67,7 +67,7 @@ static int			hookState[CONFIG_RG_VOIP_MAX_NUMBER_OF_LINES];
 /* Temporary ACL B 070620 */
 //static int  call_parcking_en=0;
 
-	
+
 
 /*** prototypes declaration ***/
 phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *pCurrent_phone_line,
@@ -88,21 +88,21 @@ acl_line_t *get_line(int line)
 {
 	if((line >= 0) && (line < CONFIG_RG_VOIP_MAX_NUMBER_OF_LINES))
 	{
-//		printf("FILE=%s, LINE=%d g_lines[%d] = 0x%08x\n", __FILE__, __LINE__, 
+//		printf("FILE=%s, LINE=%d g_lines[%d] = 0x%08x\n", __FILE__, __LINE__,
 //				line, g_lines[line]);
 
 		return g_lines[line];
 	}
 	else
 	{
-		printf("\n[%s:%d]  line %d is out of range\n", __FUNCTION__, __LINE__, line);
+		//printf("\n[%s:%d]  line %d is out of range\n", __FUNCTION__, __LINE__, line);
 		return NULL;
 	}
 }
 
 int dsp_select_mode(int n, int *hf)
 {
-//	acl_line_t *pCurrentLine = get_line(n);	
+//	acl_line_t *pCurrentLine = get_line(n);
 
 	/* Need to be implemented */
 	*hf = 0;
@@ -135,7 +135,7 @@ int set_hook_state(int n,int state)
 /******************************************************************************
 *	Function:	 phone_input_init
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] acl_line_t *line
 *
@@ -184,11 +184,11 @@ int phone_input_init(acl_line_t *line)
 /******************************************************************************
 *	Function:	 phone_input_uninit
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] acl_line_t *line
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 void phone_input_uninit(acl_line_t *line)
@@ -215,11 +215,11 @@ void phone_input_uninit(acl_line_t *line)
 /******************************************************************************
 *	Function:	 end_flash_input_state
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] acl_line_t *line
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static void end_flash_input_state(acl_line_t *line)
@@ -228,7 +228,7 @@ static void end_flash_input_state(acl_line_t *line)
 
 	/* Exits from flash-input state, without canceling the hold state
 	 * of the corresponding phone-conn */
-	 
+
 	if (!line->is_flash_input_state)
 		return;
 
@@ -239,18 +239,18 @@ static void end_flash_input_state(acl_line_t *line)
 
 	line->is_flash_input_state = 0;
 
-	if (line->active_call)	
-	{		
+	if (line->active_call)
+	{
 		int dtmf_method = acl_line_get_dtmf_method(line->active_call);
 		int rtp_id = acl_line_get_rtp_id(line->active_call);
 		int codec = acl_line_get_active_codec(line->active_call);
 		int ptime = acl_line_get_active_codec_ptime(line->active_call);
 
 		if (dsp_voice_update(line->num, 0, codec,
-			ptime, dtmf_method, rtp_id,-1))	
-		{		
-			DBG_PRINT("%s %d ERROR: dsp voice update failed\r\n", __FUNCTION__, __LINE__);	
-		}	
+			ptime, dtmf_method, rtp_id,-1))
+		{
+			DBG_PRINT("%s %d ERROR: dsp voice update failed\r\n", __FUNCTION__, __LINE__);
+		}
 	}
 
    	DBG_PRINT("<<\r\n");
@@ -261,22 +261,22 @@ static void end_flash_input_state(acl_line_t *line)
 /******************************************************************************
 *	Function:	 cancel_flash_input_state
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] acl_line_t *line
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static void cancel_flash_input_state(acl_line_t *line)
 {
    	DBG_PRINT(">>\r\n");
-	
+
 	if (!line->is_flash_input_state)
 		return;
-	
+
 	end_flash_input_state(line);
-	
+
 	line->last_flash_event = -1;
 
    	DBG_PRINT("<<\r\n");
@@ -286,11 +286,11 @@ static void cancel_flash_input_state(acl_line_t *line)
 /******************************************************************************
 *	Function:	 flash_input_timeout_cb
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] void *data
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static void flash_input_timeout_cb(void *data)
@@ -301,7 +301,7 @@ static void flash_input_timeout_cb(void *data)
    	DBG_PRINT(">>\r\n");
 
 	/* After timeout, we get out of flash-input state */
-	cancel_flash_input_state(data); 
+	cancel_flash_input_state(data);
 
 	line = (acl_line_t *)data;
 
@@ -320,12 +320,12 @@ static void flash_input_timeout_cb(void *data)
 /******************************************************************************
 *	Function:	 match_flash_string
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] acl_line_t *line
 *				 [O] phone_input_event_t *out_event
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static input_string_match_result_t match_flash_string(acl_line_t *line,
@@ -397,14 +397,14 @@ Exit:
    	DBG_PRINT("<<\r\n");
 
     return res;
-}	    
+}
 
 
 
 /******************************************************************************
 *	Function:	 handle_flash_input
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [I] phone_input_event_t event
 *				 [i] acl_line_t *line
@@ -439,7 +439,7 @@ static phone_input_event_t handle_flash_input(phone_input_event_t event,
 		   	(line->keys_sequence == KEY_SEQ_REMOTE_FLASH) ||
 		   	(line->keys_sequence == KEY_SEQ_FLASH_FOR_MGCP) )
 		{
-			ret_event = event;        
+			ret_event = event;
 		}
 		else
 		{
@@ -449,29 +449,29 @@ static phone_input_event_t handle_flash_input(phone_input_event_t event,
 				{
 					/* Get into the flash-input state only when in active call */
 					if (acl_line_is_in_active_call(line))
-					{				
+					{
 						/* start collecting the digits */
 						AC_TIMER_SET(FLASH_INPUT_DELAY_PERIOD_MS, flash_input_timeout_cb, line);
 
 						line->is_flash_input_state = 1;
 
-						if (line->active_call)	
-						{		
-							int rtp_id = acl_line_get_rtp_id(line->active_call);	
-							int codec = acl_line_get_active_codec(line->active_call);	
-							int ptime = acl_line_get_active_codec_ptime(line->active_call);	
+						if (line->active_call)
+						{
+							int rtp_id = acl_line_get_rtp_id(line->active_call);
+							int codec = acl_line_get_active_codec(line->active_call);
+							int ptime = acl_line_get_active_codec_ptime(line->active_call);
 							if (dsp_voice_update(line->num, 0, codec,
-								ptime, 2/*IBS_TRANSFER_MODE__RELAY_DISABLE_VOICE_MUTE*/, rtp_id,-1))	
-							{			
-								DBG_PRINT("ERROR: dsp voice update failed\r\n");	
-							}		
+								ptime, 2/*IBS_TRANSFER_MODE__RELAY_DISABLE_VOICE_MUTE*/, rtp_id,-1))
+							{
+								DBG_PRINT("ERROR: dsp voice update failed\r\n");
+							}
 						}
 					}
 			}
 				else
 				{
 					/* Every flash-event need to be pressed twice (at least this is
-					 * the case now with hold/transfer/conference), so having a 
+					 * the case now with hold/transfer/conference), so having a
 					 * last_flash_event means that this should be the second press
 					 * and we don't to wait for the digits: just flash key press */
 					ret_event = line->last_flash_event;
@@ -528,11 +528,11 @@ static phone_input_event_t handle_flash_input(phone_input_event_t event,
 /******************************************************************************
 *	Function:	 end_suppl_input_state
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] acl_line_t *line
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static void end_suppl_input_state(acl_line_t *line)
@@ -566,17 +566,17 @@ static void end_suppl_input_state(acl_line_t *line)
 /******************************************************************************
 *	Function:	 cancel_suppl_input_state
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] acl_line_t *line
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static void cancel_suppl_input_state(acl_line_t *line)
 {
    	DBG_PRINT(">>\r\n");
-	
+
 	if (!line->is_suppl_input_state)
 		return;
 
@@ -589,11 +589,11 @@ static void cancel_suppl_input_state(acl_line_t *line)
 /******************************************************************************
 *	Function:	 suppl_input_timeout_cb
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] void *data
 *
-*	Returns: 
+*	Returns:
 *
 *******************************************************************************/
 static void suppl_input_timeout_cb(void *data)
@@ -601,7 +601,7 @@ static void suppl_input_timeout_cb(void *data)
 	/* After timeout, we get out of flash-input state */
    	DBG_PRINT(">>\r\n");
 
-	cancel_suppl_input_state(data);   
+	cancel_suppl_input_state(data);
 
    	DBG_PRINT("<<\r\n");
 }
@@ -611,7 +611,7 @@ static void suppl_input_timeout_cb(void *data)
 /******************************************************************************
 *	Function:	 suppl_input_timeout_cb
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] acl_line_t *line
 *				 [o] phone_input_event_t *out_event
@@ -621,7 +621,7 @@ static void suppl_input_timeout_cb(void *data)
 *******************************************************************************/
 static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_input_event_t *out_event)
 {
-	/* ACL NB 070507 */ 
+	/* ACL NB 070507 */
 	static code2str_t suppl_strs_events[] = {
 		{PHONE_INPUT_CFW,     "dummy" , 0, 0},
 		{PHONE_INPUT_BLINDT,   "98"  , 0, 0 },
@@ -642,7 +642,7 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 
 	if (line->suppl_string_pos > MAX_KEY_SEQ_STRING_LEN) /* ACL NB 061210 changed MAX_FLASH_STRING_LEN to MAX_KEY_SEQ_STRING_LEN */
 		goto Exit;
-  
+
 	line->suppl_string[line->suppl_string_pos] = 0;
 	/* Compare the collected string with any one of * & digits
 	* combinations strings */
@@ -661,7 +661,7 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 	}
 
     	DBG_PRINT("-- match = %d\r\n", match);
-		
+
 	/* ACL NB 070507 */
 	if (match)
 	{
@@ -679,7 +679,7 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 				 * complete match, so we assign the event associated with this
 				    * digits combination */
 				    res = INPUT_STRING_MATCH;
-				    *out_event = PHONE_INPUT_CFW; 
+				    *out_event = PHONE_INPUT_CFW;
 		 	}
 		 	else
 		    		res = INPUT_STRING_PARTIAL_MATCH;
@@ -692,14 +692,14 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 		{
 			 int j, match = 1;
 			 char *matched_str = suppl_strs_events[i].str;
-			 
+
          /* ACL NB 071118 - VI58788 */
          if (( suppl_strs_events[i].code == PHONE_INPUT_BLINDT ) &&
              ( !line->blindTransferEnabled)                          )
          {
             DBG_PRINT("blind transfer is disabled\r\n");
             match = 0;
-            break;           
+            break;
          }
 			 for (j=0; matched_str[j] && j<line->suppl_string_pos; j++)
 			 {
@@ -719,7 +719,7 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 					* complete match, so we assign the event associated with this
 					   * digits combination */
 					   res = INPUT_STRING_MATCH;
-					   *out_event = suppl_strs_events[i].code; 
+					   *out_event = suppl_strs_events[i].code;
 					   break;
 				}
 				else
@@ -735,7 +735,7 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 
 			if (!matched_str[0])
 				match = 0;
-			         
+
 			for (j=0; matched_str[j] && j<line->suppl_string_pos; j++)
 			{
 				if (matched_str[j] != line->suppl_string[j])
@@ -760,11 +760,11 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
 					* complete match, so we assign the event associated with this
 					    * digits combination */
 					    res = INPUT_STRING_MATCH;
-					    *out_event = PHONE_INPUT_DND; 
+					    *out_event = PHONE_INPUT_DND;
 					}
 					else
 					    res = INPUT_STRING_PARTIAL_MATCH;
-				}             
+				}
 			}
 		}
 	}
@@ -777,15 +777,15 @@ static input_string_match_result_t match_suppl_string(acl_line_t *line, phone_in
    	DBG_PRINT("<<\r\n");
 
 	return res;
-	
-}	    
+
+}
 
 
 
 /******************************************************************************
 *	Function:	 handle_suppl_input
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] phone_input_event_t 	event
 *				 [i] acl_line_t 			*line
@@ -805,7 +805,7 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
 		return event;
 
     //console_printf("handle_suppl_input::Event %d-%s down=%d \r\n", event, phone_input_get_event_desc(event), down);
-    /* ACL NB 071010 */  
+    /* ACL NB 071010 */
     /* using the down value is a little bit tricky and it enable to get the * if there is no match */
     if ( event == PHONE_INPUT_ASTERISK && !down )
     {
@@ -813,7 +813,7 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
 	   {
  /* Eitan1207 - enable * relay during call except *98 for call park */
          /* Get into the service key state only when no active call */
-		   if (acl_line_is_in_active_call(line)&& !line->blindTransferEnabled) 
+		   if (acl_line_is_in_active_call(line)&& !line->blindTransferEnabled)
 		   {
  		           /* ignore */
 		   }
@@ -853,8 +853,8 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
             else
                line->is_cfw_on = 1;
          }
-		 if (event == PHONE_INPUT_DAA_FLASH_HOOK_RELAY)/* NIRP 070607 */	
-		 {			
+		 if (event == PHONE_INPUT_DAA_FLASH_HOOK_RELAY)/* NIRP 070607 */
+		 {
 		 	DBG_PRINT("Got PHONE_INPUT_DAA_FLASH_HOOK_RELAY .\r\n");
 		 }
 		/* In case of match, we activate the corresponding event and store
@@ -866,7 +866,7 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
 			else
 			line->is_dnd_activated = 1;
 
-			line->is_dnd_on = 1;                           
+			line->is_dnd_on = 1;
 		}
          cancel_suppl_input_state(line);
          break;
@@ -874,7 +874,7 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
          case INPUT_STRING_NO_MATCH:
 	      cancel_suppl_input_state(line);
 	      break;
-	      
+
          case INPUT_STRING_PARTIAL_MATCH:
 	       /* Restart the timeout timer for the next digit press */
 		if (AC_TIMER_EXISTS(suppl_input_timeout_cb, line))
@@ -903,7 +903,7 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
 /******************************************************************************
 *	Function:	 phone_input_cb
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] acgTEventInfo 	*pAcgEvent
 *
@@ -912,7 +912,7 @@ static phone_input_event_t handle_suppl_input(phone_input_event_t event, acl_lin
 *******************************************************************************/
 /*NirS 081028 : new phone_input_cb */
 void phone_input_cb(voip_event_info_t *voip_event_info, acl_line_t *line)
-{	 
+{
     switch(voip_event_info->phone_input_event)
    {
        case  DSP_PHONE_INPUT_EVENT:
@@ -920,15 +920,15 @@ void phone_input_cb(voip_event_info_t *voip_event_info, acl_line_t *line)
        case  DAA_PHONE_INPUT_EVENT:
        {
           acgTEventInfo *pAcgEvent;
-          pAcgEvent = (acgTEventInfo *)voip_event_info->info;    
-          dsp_slic_daa_phone_input_cb(pAcgEvent, line);            
+          pAcgEvent = (acgTEventInfo *)voip_event_info->info;
+          dsp_slic_daa_phone_input_cb(pAcgEvent, line);
        }
         break;
-                  
+
        case  MISC_PHONE_INPUT_EVENT:
        {
           voip_misc_phone_event_info *pAcgMiscEvent;
-          pAcgMiscEvent = (voip_misc_phone_event_info *)voip_event_info->info;    
+          pAcgMiscEvent = (voip_misc_phone_event_info *)voip_event_info->info;
           misc_phone_input_cb(pAcgMiscEvent,line);
        }
         break;
@@ -944,7 +944,7 @@ void phone_input_cb(voip_event_info_t *voip_event_info, acl_line_t *line)
        default:
           printf("\nUnrecognized phone_input_event \n");
         break;
- 
+
     }
 }
 
@@ -968,7 +968,7 @@ void update_phone_input_event(phone_input_event_t key,acl_line_t *line)
 /******************************************************************************
 *	Function:	keypad_phone_input_cb
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] phone_keypad_input_t* pAcgEvent
 *
@@ -985,7 +985,7 @@ void keypad_phone_input_cb(phone_event_t* pKeypadEvent,acl_line_t *line)
 /******************************************************************************
 *	Function:	 dsp_slic_daa_phone_input_cb
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] acgTEventInfo 	*pAcgEvent
 *
@@ -1021,7 +1021,7 @@ void dsp_slic_daa_phone_input_cb(acgTEventInfo *pAcgEvent, acl_line_t *line)
 	keyEvent = handle_flash_input(keyEvent, line, event.pressed);
 	if(keyEvent == ILLEGAL_PHONE_INPUT)
 		return;
-	
+
         DBG_PRINT("\r\n");
 
 	/* ACL Nb 061113 */
@@ -1045,11 +1045,11 @@ void dsp_slic_daa_phone_input_cb(acgTEventInfo *pAcgEvent, acl_line_t *line)
 /******************************************************************************
 *	Function:	 misc_phone_input_cb
 *
-*	Description: handle miscellaneous inputs 
+*	Description: handle miscellaneous inputs
 
-*	Parameters:	
+*	Parameters:
 *
-*	Returns:	
+*	Returns:
 *
 *******************************************************************************/
 void misc_phone_input_cb(voip_misc_phone_event_info *pAcgEvent, acl_line_t *line)
@@ -1079,7 +1079,7 @@ void misc_phone_input_cb(voip_misc_phone_event_info *pAcgEvent, acl_line_t *line
 /******************************************************************************
 *	Function:	 phone_input_get_event_desc
 *
-*	Description: 
+*	Description:
 *
 *	Parameters:	 [i] phone_input_event_t 	input_event
 *
@@ -1141,15 +1141,15 @@ char *phone_input_get_event_desc(phone_input_event_t input_event)
 		return "CALL FORWARD";
 	    case PHONE_INPUT_BLINDT:/* ACL NB 070507  Blind Transfer*/
 		return "BLIND TRANSFER";
-    	    case PHONE_INPUT_DAA_FLASH_HOOK_RELAY:/* NIRP 070607 */	
+    	    case PHONE_INPUT_DAA_FLASH_HOOK_RELAY:/* NIRP 070607 */
 		return "DAA FLASH HOOK RELAY";
-		
+
 	    default:
 	       break;
     }
-	
+
     return "Unknown input type";
-	
+
 }
 
 
@@ -1166,7 +1166,7 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 	switch(pAcgEvent->EventType)
 	{
 		case ACG_EVENT_TYPE__ON_HOOK:
-	
+
 			/* Channel in SLIC event is the actual line */
 			pEvent->key = PHONE_INPUT_HOOK_ON;
 			hookState[line->num] = ON_HOOK;
@@ -1176,7 +1176,7 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 			break;
 
 		case ACG_EVENT_TYPE__OFF_HOOK:
-	
+
 			/* Channel in SLIC event is the actual line */
 			pEvent->key = PHONE_INPUT_HOOK_OFF;
 			hookState[line->num] = OFF_HOOK;
@@ -1186,16 +1186,16 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 			break;
 
 		case ACG_EVENT_TYPE__FLASH_HOOK:
-	
+
 			/* Channel in SLIC event is the actual line */
 			pEvent->key = PHONE_INPUT_FLASH;
 
 			printf("\nACG_EVENT_TYPE__FLASH_HOOK on line %d\n", line->num);
 
 			break;
-	
+
 		case ACG_EVENT_TYPE__DTMF_START:
-	
+
 			if((pAcgEvent->EventInfo.Tone.Type == ACG_TONE_TYPE__DTMF) &&
 				(pAcgEvent->EventInfo.Tone.Direction == ACG_DIRECTION__TO_LOCAL_TDM))
 			{
@@ -1222,9 +1222,9 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 
 			if(pAcgEvent->EventInfo.FaxModem.InitiatingFlag == ACG_INITIATING_FLAG__MEDIA_GATEWAY_STATE_IS_INITIATED_BY_DSP)
 			{
-				voip_conf_faxDataMethod_get(&faxDataMethod);				
+				voip_conf_faxDataMethod_get(&faxDataMethod);
 
-				if((!line->active_call->isT38) && 
+				if((!line->active_call->isT38) &&
 					((faxDataMethod & FAX_METHOD_MASK) == T38_TRANSPORT_RELAY ))  /*ACL NB 061214 the 4 LSBs are fax method */
 				{
 					pEvent->key = PHONE_INPUT_FAX_DETECT;
@@ -1238,8 +1238,8 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 		case ACG_EVENT_TYPE__FAX_OR_MODEM_START:
 
 			if(pAcgEvent->EventInfo.FaxModem.InitiatingFlag == ACG_INITIATING_FLAG__MEDIA_GATEWAY_STATE_IS_INITIATED_BY_DSP)
-			{	
-				voip_conf_faxDataMethod_get(&faxDataMethod);				
+			{
+				voip_conf_faxDataMethod_get(&faxDataMethod);
 
 				if((!line->active_call->isVBD) &&
 					((faxDataMethod & FAX_METHOD_MASK) == T38_VOICE_BAND_DATA ))  /*ACL NB 061214 the 4 LSBs are fax method */
@@ -1264,7 +1264,7 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 
 		case ACG_EVENT_TYPE__MODEM_START:
 			break;
-			
+
 		case ACG_EVENT_TYPE__CALL_PROGRESS_TONE_START:
 			break;
 
@@ -1308,7 +1308,7 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 				pAcgEvent->EventInfo.RTCPInfo.RTCP.Jitter, pAcgEvent->EventInfo.RTCPInfo.RTCP.RoundTrip, pAcgEvent->EventInfo.RTCPInfo.RTCP.FractionLost/256.*100.,'%',
 				pAcgEvent->EventInfo.RTCPInfo.RTCP.CumLost, pAcgEvent->EventInfo.RTCPInfo.RTCP.ExtHighSeq, pAcgEvent->EventInfo.RTCPInfo.RTCP.SsrcSender,
 				pAcgEvent->EventInfo.RTCPInfo.RTCP.RtpTimeStamp, pAcgEvent->EventInfo.RTCPInfo.RTCP.PacketsReceived, pAcgEvent->EventInfo.RTCPInfo.RTCP.OctetsReceived);
-*/			
+*/
 			break;
 
 		case ACG_EVENT_TYPE__RTCP_XR_INFO:
@@ -1351,7 +1351,7 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
 			pEvent->key = ILLEGAL_PHONE_INPUT;
 
 			break;
-			
+
 		default:
 			printf("\nUnrecognize EventType\n");
 			break;
@@ -1360,7 +1360,7 @@ phone_input_event_t translate_acg_events_to_phone_input_events(acl_line_t *line,
    	DBG_PRINT("<<\r\n");
 
 	return pEvent->key;
-	
+
 }
 
 #ifdef AC488_CPE_VOIP_TOOLKIT

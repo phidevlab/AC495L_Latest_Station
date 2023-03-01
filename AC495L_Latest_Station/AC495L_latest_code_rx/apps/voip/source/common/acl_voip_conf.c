@@ -970,8 +970,7 @@ void voip_conf_set_voip_config_defaults()
     voip_dsp_advanced_channel_configuration->AgcTargetEnergy = -19;
     voip_dsp_advanced_channel_configuration->VoiceJitterBufferMinDelay = 35;
     voip_dsp_advanced_channel_configuration->DynamicJitterBufferOptimizationFactor = 7;
-    voip_dsp_advanced_channel_configuration->EchoCancelerMode = 0;//1;
-	printf("##########EchoCancelerMode=0#########\n");
+    voip_dsp_advanced_channel_configuration->EchoCancelerMode = 0;
     /*voip_dsp_advanced_channel_configuration->CngRelayEnable = 0;*/
     voip_dsp_advanced_channel_configuration->FaxMaxRate = FAX_MAX_RATE_14_4_KBPS;
     voip_dsp_advanced_channel_configuration->FaxMaxBuffer = 1024;

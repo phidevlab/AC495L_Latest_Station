@@ -11,9 +11,9 @@
  *																	*
  ********************************************************************/
 /******************************************************************************
-*                                                                            
-* 	DESCRIPTION:	This file holds the routines for controling the socket hold by the local network termination 				  		                                                             
-*                                                                            
+*
+* 	DESCRIPTION:	This file holds the routines for controling the socket hold by the local network termination
+*
 ******************************************************************************/
 
 #include <stdio.h>
@@ -26,16 +26,16 @@
 #include <sys/msg.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <pthread.h> 
+#include <pthread.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>  
-#include <sched.h> 
+#include <sys/stat.h>
+#include <sched.h>
 
 #include "iphone_localNetTerm.h"
 
 #include "acl_log.h"
-
+#include "voip_main.h"
 static channelInfo_s networkingRtpChannelInfoDB[NUMBER_OF_DSP_CHANNELS];
 static int			 socket2AbsChDB[FD_SETSIZE];
 
@@ -50,7 +50,7 @@ pthread_t  acl_UDPrxJobTid;
 *	Input:     	localPort - socket port
 *				phyId - physical termination id that is connected to this socket
 *----------------------------------------------------------------------------
-*  	Output:		
+*  	Output:
 *----------------------------------------------------------------------------
 *	Returns: 	case of error -1 else 0
 ******************************************************************************/
@@ -73,7 +73,7 @@ int iphone_createRtpRxThread()
 		acl_log(ACL_LOG_ERROR,"pthread_attr_setschedpolicy");
 		exit(1);
 	}
-  	sched.sched_priority = 76;	
+  	sched.sched_priority = 76;
  	if( (pthread_attr_setschedparam(&attr, &sched) != 0) )
 	{
 		acl_log(ACL_LOG_ERROR,"pthread_attr_setschedparam");
@@ -81,13 +81,14 @@ int iphone_createRtpRxThread()
 	}
 	if( (pthread_create(&tid, &attr, acl_UDPrxJob, 0) != 0) )
 	{
-		acl_log(ACL_LOG_ERROR,"pthread_create - acl_UDPrxJob");
-		exit(1);
+		printf("pthread_create - createRTPRxthread[%s:%d]\n",__FUNCTION__,__LINE__);
+		//acl_log(ACL_LOG_ERROR,"pthread_create - acl_UDPrxJob");
+		//exit(1);
 	}
 
 	acl_UDPrxJobTid = tid;
-		
-	return 0;	
+
+	return 0;
 
 } /* end of iphone_createRxThread() */
 
@@ -105,14 +106,14 @@ int iphone_createSocket(int localPort)
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
    	/* get the socket */
-	if((sFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) 
+	if((sFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
     	acl_log(ACL_LOG_ERROR,"socket");
 		return -1;
 	}
 
     /* bind the socket to the local ip and the port */
-	if(bind(sFd,(struct sockaddr *)&serverAddr, sockAddrSize) < 0) 
+	if(bind(sFd,(struct sockaddr *)&serverAddr, sockAddrSize) < 0)
 	{
     	acl_log(ACL_LOG_ERROR,"bind");
 		close(sFd);
@@ -121,8 +122,8 @@ int iphone_createSocket(int localPort)
 
 	/*add the sFd to the readfds set*/
 	networking_rtpSfdAdd(sFd);
-	
-	return sFd;	
+
+	return sFd;
 
 } /* end of iphone_createSocket() */
 
@@ -140,7 +141,7 @@ void networking_rtpChannelInfoDB_reset(void)
 	}
 
 	networking_rtpSfdReset();
-	
+
 } /* end of networking_rtpChannelInfoDB_reset() */
 
 void networking_rtpSocket2AbsChDB_reset(void)
@@ -153,8 +154,8 @@ void networking_rtpSocket2AbsChDB_reset(void)
 
 int networking_rtpChannelAddrSet(char *addr, short port, int channel)
 {
-	channelInfo_s *channelInfo;
-	
+   	channelInfo_s *channelInfo;
+
 	if ((0 > channel) || (NUMBER_OF_DSP_CHANNELS <= channel))
 	{
 		acl_log(ACL_LOG_ERROR,"channel must be between 0 to %d\r\n", NUMBER_OF_DSP_CHANNELS -1);
@@ -167,6 +168,7 @@ int networking_rtpChannelAddrSet(char *addr, short port, int channel)
 	memcpy(channelInfo->remoteNetTermInfo.address, addr, ADDRESS_STR_MAX_LEN);
 	/*IP port*/
 	channelInfo->remoteNetTermInfo.port = port;
+	 printf("networking_rtpChannelAddrSet..........channelInfo->remoteNetTermInfo.address:%s,channelInfo->remoteNetTermInfo.port:%d\n",channelInfo->remoteNetTermInfo.address,channelInfo->remoteNetTermInfo.port);
 
 	return ACL_SUCCESS;
 }
@@ -174,12 +176,12 @@ int networking_rtpChannelAddrSet(char *addr, short port, int channel)
 int networking_rtpChannelConnect(int channel, int sFd)
 {
 	channelInfo_s *channelInfo;
-	
-	if ((0 > channel) || (NUMBER_OF_DSP_CHANNELS <= channel))
+
+	/*if ((0 > channel) || (NUMBER_OF_DSP_CHANNELS <= channel))
 	{
 		acl_log(ACL_LOG_ERROR,"channel must be between 0 to %d\r\n", NUMBER_OF_DSP_CHANNELS -1);
 		return ACL_FAILURE;
-	}
+	}*/
 	channelInfo = &networkingRtpChannelInfoDB[channel];
 
 	/* set the channelInfo DB */
@@ -195,12 +197,13 @@ int networking_rtpChannelConnect(int channel, int sFd)
 
 channelInfo_s *networking_rtpChannelInfoGet(int channel)
 {
-	if ((0 > channel) || (NUMBER_OF_DSP_CHANNELS <= channel))
+    //printf("************ACG_NUMBER_OF_DSP_CHANNEL NOT USED-------------\n");
+	/*if ((0 > channel) || (NUMBER_OF_DSP_CHANNELS <= channel))
 	{
 		acl_log(ACL_LOG_ERROR,"channel must be between 0 to %d\r\n", NUMBER_OF_DSP_CHANNELS -1);
 		return NULL;
-	}
-    
+	}*/
+
 	return &networkingRtpChannelInfoDB[channel];
 }
 
@@ -225,7 +228,7 @@ int networking_rtpChannelInfoDelete(int channel)
 	channelInfo->chId = -1;
 	/*connectino status */
 	channelInfo->rtpMode = VOIP_CONN_MODE_NOT_SET;
-	
+
 	/*do this first ! set the "other side" DB*/
 	socket2AbsChDB[channelInfo->sFd] = -1;
 	/*sFd*/

@@ -1,21 +1,21 @@
 /****************************************************************************
-*                                                                            
-*   Company:			Audiocodes Ltd.                                                      
-*                                                                            
-*   Project:			                                               
-*                                                                          
-*   Hardware Module: 	                                                  
-*                                                                           
-*   File Name: 			cfg_api.c		                                                 
-*                                                                            
-*   Creation Date:    	13.2.07                                                     
-*    	                                                                        
-*   Last Update By:		                                                     
-*                                                                            
+*
+*   Company:			Audiocodes Ltd.
+*
+*   Project:
+*
+*   Hardware Module:
+*
+*   File Name: 			cfg_api.c
+*
+*   Creation Date:    	13.2.07
+*
+*   Last Update By:
+*
 ******************************************************************************
-*                                                                            
-* 	DESCRIPTION:		Configuration Infrastructure Protocol High level API's Source File 		  		                                                             
-*                                                                            
+*
+* 	DESCRIPTION:		Configuration Infrastructure Protocol High level API's Source File
+*
 ******************************************************************************/
 
 #include <stdio.h>
@@ -29,7 +29,7 @@
 #include <sys/un.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>  
+#include <sys/stat.h>
 
 #include "cfg_api.h"
 
@@ -44,7 +44,7 @@
 int					remoteSocketFd;
 struct sockaddr_un		remoteAddr;
 
-int cfg_init_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path, 
+int cfg_init_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path,
 								struct sockaddr_un *remote_addr);
 
 char* GetNextLine(char* buf,char** p);
@@ -66,7 +66,7 @@ char* StrFindFirstNotOf(char* str, char* delimiters);
 *----------------------------------------------------------------------------
 *	Returns: 	-1 in case of error
 ******************************************************************************/
-int cfg_init_manager_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path, 
+int cfg_init_manager_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path,
 								struct sockaddr_un *remote_addr)
 {
 
@@ -95,7 +95,7 @@ int cfg_init_manager_socket(int *SocketFd, char *my_sun_path, char *remote_sun_p
 *----------------------------------------------------------------------------
 *	Returns: 	-1 in case of error
 ******************************************************************************/
-int cfg_init_agent_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path, 
+int cfg_init_agent_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path,
 								struct sockaddr_un *remote_addr)
 {
 	if(cfg_init_socket(SocketFd, my_sun_path, remote_sun_path, remote_addr) < 0)
@@ -113,10 +113,10 @@ int cfg_init_agent_socket(int *SocketFd, char *my_sun_path, char *remote_sun_pat
 }
 
 
-static char* get_next_line(char** p) 
+static char* get_next_line(char** p)
 {
 	char *result = NULL;
-	
+
 	result = strtok( *p, "\n" );
 
 	if( result == NULL )
@@ -148,9 +148,9 @@ static char* get_next_line(char** p)
 ******************************************************************************/
 int cfg_set_config(char *cfgBuf, int SocketFd, struct sockaddr_un remote_addr)
 {
-	struct  sockaddr_un 			from;       
+	struct  sockaddr_un 			from;
 	socklen_t						fromlen;
-	
+
    	char             					buf[MAX_LEN];
 	int							buf_len;
 	cfg_msg						*pCfg_msg = NULL;
@@ -193,7 +193,7 @@ int cfg_set_config(char *cfgBuf, int SocketFd, struct sockaddr_un remote_addr)
 		printf("illegal configuration file - NULL\r\n");
 		return (-1);
 	}
-	
+
 	/* get line by line from the configuration buffer and send it to the remote */
 	while((retString = get_next_line(&ptr))!=NULL)
 	{
@@ -242,7 +242,7 @@ int cfg_set_config(char *cfgBuf, int SocketFd, struct sockaddr_un remote_addr)
 
         if ((buf_len = recvfrom(SocketFd, buf, sizeof(buf), 0, (struct sockaddr *)&from, &fromlen)) < 0){
   	 		perror("\nrecvfrom::cfg_set_config()");
-			return (-1);			
+			return (-1);
         }
 
 	buf[buf_len] = '\0';
@@ -275,7 +275,7 @@ int cfg_set_config(char *cfgBuf, int SocketFd, struct sockaddr_un remote_addr)
 int cfg_get_port_count( int *portCount, int SocketFd, struct sockaddr_un remote_addr)
 {
 
-	struct  sockaddr_un 			from;       
+	struct  sockaddr_un 			from;
 	socklen_t						fromlen;
 
    	char             					buf[MAX_LEN];
@@ -313,22 +313,22 @@ int cfg_get_port_count( int *portCount, int SocketFd, struct sockaddr_un remote_
 				return 0;
 			}
 			else	{
-				printf("\nThe number of port exist can't be less then 0, received: %d", 
+				printf("\nThe number of port exist can't be less then 0, received: %d",
 						*(int *)&pStatusRequest_value_msg->value[0]);
 				return (-1);
 			}
-		} 
+		}
 		else{
-			printf("\nThe requested status was for GET_PORT_COUNT, response was received for status request no. %d", 
+			printf("\nThe requested status was for GET_PORT_COUNT, response was received for status request no. %d",
 						pStatusRequest_value_msg->statusRequest);
 			return (-1);
 		}
-	} 
+	}
 	else{
-		printf("\nThe opcode which suppose to be received is GET_RESPONSE_INTEGER , opcode received is %d", 
+		printf("\nThe opcode which suppose to be received is GET_RESPONSE_INTEGER , opcode received is %d",
 					pCfg_msg->opcode);
 		return (-1);
-	}		
+	}
 
 	return 0;
 
@@ -350,7 +350,7 @@ int cfg_get_port_count( int *portCount, int SocketFd, struct sockaddr_un remote_
 ******************************************************************************/
 int cfg_get_port_status(int portNumber,  int *portStatus, 	int SocketFd, struct sockaddr_un remote_addr)
 {
-	struct  sockaddr_un 					from;       
+	struct  sockaddr_un 					from;
 	socklen_t								fromlen;
 
    	char             							buf[MAX_LEN];
@@ -391,25 +391,25 @@ int cfg_get_port_status(int portNumber,  int *portStatus, 	int SocketFd, struct 
 					return 0;
 				}
 				else{
-					printf("\nPort status must be between 0 to 1, received: %d", 
+					printf("\nPort status must be between 0 to 1, received: %d",
 								*(int *)&pStatusRequest_channel_value_msg->value[0]);
 					return (-1);
 				}
 			}
 			else{
-				printf("\nThe requested port status was for channel %d, response was received for channel: %d", 
+				printf("\nThe requested port status was for channel %d, response was received for channel: %d",
 							portNumber, pStatusRequest_channel_value_msg->channel);
 				return (-1);
 			}
-		} 
+		}
 		else{
-			printf("\nThe requested status was for GET_PORT_STATUS_N, port number %d, response was received for status request no. %d", 
+			printf("\nThe requested status was for GET_PORT_STATUS_N, port number %d, response was received for status request no. %d",
 						portNumber, pStatusRequest_channel_value_msg->statusRequest);
 			return (-1);
 		}
-	} 
+	}
 	else{
-		printf("\nThe opcode which suppose to be received is GET_N_RESPONSE_INTEGER , opcode received is %d", 
+		printf("\nThe opcode which suppose to be received is GET_N_RESPONSE_INTEGER , opcode received is %d",
 					pCfg_msg->opcode);
 		return (-1);
 	}
@@ -435,7 +435,7 @@ int cfg_get_port_status(int portNumber,  int *portStatus, 	int SocketFd, struct 
 int cfg_set_port_status(int portNumber,  int portStatus, int SocketFd, struct sockaddr_un remote_addr)
 {
 
-	struct  sockaddr_un 					from;       
+	struct  sockaddr_un 					from;
 	socklen_t								fromlen;
 
    	char             							buf[MAX_LEN];
@@ -446,7 +446,7 @@ int cfg_set_port_status(int portNumber,  int portStatus, int SocketFd, struct so
 	fromlen = sizeof(struct sockaddr_un);
 	memset(buf, 0, sizeof(buf));
 
-	if(cip_set_n(SET_N_INTEGER, SET_PORT_STATUS_N, portNumber, (char *)&portStatus, 
+	if(cip_set_n(SET_N_INTEGER, SET_PORT_STATUS_N, portNumber, (char *)&portStatus,
 					SocketFd, remote_addr) == -1){
 		printf("\ncip_set_n::cfg_set_port_status()");
 		return (-1);
@@ -475,25 +475,25 @@ int cfg_set_port_status(int portNumber,  int portStatus, int SocketFd, struct so
 					return 0;
 				}
 				else{
-					printf("\nPort status must be between 0 to 1, received: %d", 
+					printf("\nPort status must be between 0 to 1, received: %d",
 								*(int *)&pStatusCommand_channel_value_msg->value[0]);
 					return (-1);
 				}
 			}
 			else{
-				printf("\nThe requested port status was for channel %d, response was received for channel: %d", 
+				printf("\nThe requested port status was for channel %d, response was received for channel: %d",
 							portNumber, pStatusCommand_channel_value_msg->channel);
 				return (-1);
 			}
-		} 
+		}
 		else{
-			printf("\nThe status coMmand was for SET_PORT_STATUS_N, port number %d, response was received for status command no. %d", 
+			printf("\nThe status coMmand was for SET_PORT_STATUS_N, port number %d, response was received for status command no. %d",
 						portNumber, pStatusCommand_channel_value_msg->statusCommand);
 			return (-1);
 		}
-	} 
+	}
 	else{
-		printf("\nThe opcode which suppose to be received is SET_N_RESPONSE_INTEGER , opcode received is %d", 
+		printf("\nThe opcode which suppose to be received is SET_N_RESPONSE_INTEGER , opcode received is %d",
 					pCfg_msg->opcode);
 		return (-1);
 	}
@@ -517,7 +517,7 @@ int cfg_set_port_status(int portNumber,  int portStatus, int SocketFd, struct so
 ******************************************************************************/
 int cfg_wait_for_ready_response(char *response, int SocketFd)
 {
-	struct  sockaddr_un 	from;       
+	struct  sockaddr_un 	from;
 	socklen_t				fromlen;
 
 	char					buf[MAX_LEN];
@@ -568,7 +568,7 @@ int cfg_wait_for_ready_response(char *response, int SocketFd)
  * Input: 	 string - the buffer to be parsed
  * Output:   	 string pointer - pointer to the beggining of the next line
  **************************************************************************************/
-char* GetNextLine(char* buf,char** p) 
+char* GetNextLine(char* buf,char** p)
 {
 	if(*p==NULL) {
 		*p = buf;
@@ -610,7 +610,7 @@ char* StrFindFirstNotOf(char* str, char* delimiters) {
  * Input: 	 string - the buffer to be parsed
  * Output:   	 string pointer - pointer to the buffer to be filled
  **************************************************************************************/
-int GetCurrentLine(char* receivedBuf, char* newBuf) 
+int GetCurrentLine(char* receivedBuf, char* newBuf)
 {
 	int index=0;
 
@@ -639,13 +639,14 @@ int GetCurrentLine(char* receivedBuf, char* newBuf)
  *
  * Output:   	string - file name
  **************************************************************************************/
-int cfg_util_load_file(char* buf, size_t bufsize, char* fileName) 
+int cfg_util_load_file(char* buf, size_t bufsize, char* fileName)
 {
 	FILE* file;
 
 	char *pLine;
 //	char line[MAX_LEN]="";
 	unsigned int cnt=0;
+	printf("^^^^fileName:%s\n",fileName);///anuja
 
 	if ((file = fopen(fileName, "r")) == NULL) {
 		printf("ERROR: %s File Not Found\n",fileName);
@@ -657,11 +658,11 @@ int cfg_util_load_file(char* buf, size_t bufsize, char* fileName)
 	pLine = malloc(MAX_LEN);
 	if(!pLine)
 	{
-		fclose(file);		
+		fclose(file);
 		return(-1);
 	}
 	memset(pLine , 0, sizeof(MAX_LEN));
-	
+
 	while (fgets(pLine, MAX_LEN-1, file) != NULL)
 	{
 		/* Skip lines starting with ';' */
@@ -686,15 +687,15 @@ int cfg_util_load_file(char* buf, size_t bufsize, char* fileName)
 
 	if(pLine)
 		free(pLine);
-	
+
 	fclose(file);
-	
+
 	return 0;
-	
+
 }
 
 
-int cfg_init_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path, 
+int cfg_init_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path,
 								struct sockaddr_un *remote_addr)
 {
  	socklen_t 			myLen;
@@ -713,7 +714,7 @@ int cfg_init_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path,
   	}
 
   	memset((char *)&my_addr,0, sizeof(my_addr));
-	my_addr.sun_family = AF_UNIX;  
+	my_addr.sun_family = AF_UNIX;
 
 	if(strlen(my_sun_path) < sizeof(my_addr.sun_path))
 		strcpy(my_addr.sun_path, my_sun_path);
@@ -733,14 +734,14 @@ int cfg_init_socket(int *SocketFd, char *my_sun_path, char *remote_sun_path,
 	   	printf("[%s:%d] binding socket UNIX Domain socket \r\n",__FUNCTION__, __LINE__);
 	 	return -1;
 	}
-	
+
 #ifdef CIP_DEBUG
 		printf("\ncfg_init_socket::SocketFd = %d  name = %s\n", *SocketFd, my_addr.sun_path);
 #endif
 
 
   	memset((char *)remote_addr,0, sizeof(remote_addr));
-	remote_addr->sun_family = AF_UNIX;  
+	remote_addr->sun_family = AF_UNIX;
 
 	if(strlen(remote_sun_path) < sizeof(remote_addr->sun_path))
 		strcpy(remote_addr->sun_path, remote_sun_path);

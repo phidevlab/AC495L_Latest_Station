@@ -6,6 +6,8 @@
 
 #define BROADCAST_PORT		"5001"
 #define UNICAST_PORT        "5002"
+#define RTP_PORT            4000
+
 
 #define FRAME_HEADER            "vccs"
 #define PRTCL_HDR						"vccs"
@@ -32,7 +34,17 @@
 #define GROUP_INTERCOM_BREAK_IN_FRAME   22
 #define ONLINE_LOCAL_CONFIG_DOWNLOAD    23
 #define ONLINE_GLOBAL_CONFIG_DOWNLOAD   24
-#define FSU_RESTART_FRAME               98
+#define FCS_RESTART_FRAME               98
+
+
+#define P2P_CALL_REQUEST 			    67
+#define P2P_CALL_ACK			        68
+#define P2P_NO_RESPONSE			        69
+#define P2P_CALL_NACK			        70
+#define P2P_CALL_RESET_REQ              71
+#define P2P_CALL_RESET_ACK              72
+#define P2P_BRK_CALL_RESET_REQ          74
+#define P2P_CALL_RESET_PVTTIMEOUT_REQ   75
 
 #define ICOM_PTT_SEND_REQ               30
 #define ICOM_PTT_RELEASE_REQ            31
@@ -53,6 +65,7 @@
 #define ZONE_ALM_INCOMING_CALL          46
 #define ZONE_RESET_REQ			        47
 #define ZONE_RESET                      48
+
 
 #define NEG_RESPONSE_FRAME_CMD          50
 #define KEEP_ALIVE_FRAME                51
@@ -80,10 +93,15 @@
 #define DIAGNOSTICS_FRAME_LENGTH         20
 #define ZONE_CALL_FRAME_LENGTH           20
 #define CONF_CALL_FRAME_LENGTH           20
+#define P2P_CALL_FRAME_LENGTH            20
 
 
 
-
+/*struct stn_ip_saved
+{
+    char destinationIP[15];
+    char InitiatorIP[15];
+}stn_ip;*/
 
 /********************************************************************************************************
 * Structure name: server_coms_param_registration_bcast_t                     		      		     	*
@@ -198,18 +216,6 @@ struct server_coms_group_call_status
     short response;
 }server_coms_group_call_info[THIRTY_TWO];
 
-/*
-struct server_coms_conferance_call
-{
-   // short cmd;
-    short initiator_stn;
-    //short group_no;
-//short cont1;
-    //short cont2;
-    //short response;
-
-};
-*/
 
 
 /********************************************************************************************************

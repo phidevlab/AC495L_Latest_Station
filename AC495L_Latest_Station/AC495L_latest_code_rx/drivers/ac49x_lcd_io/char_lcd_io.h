@@ -15,12 +15,12 @@
 
 // ********* IOCTL COMMAND ARGUMENTS ******************************************************************
 
-#define IOCTL_CLEAR_DISPLAY 	  	'0'	// Identifiers for ioctl reqursts
-#define IOCTL_PRINT			'1'				           
-#define IOCTL_LCD_INITIALIZATION	'2'
-#define IOCTL_IO_INITIALIZATION		'3'
-#define IOCTL_SET_BIT_IO_EXPANDER	'4'
-#define IOCTL_GET_BIT_IO_EXPANDER	'5'
+#define IOCTL_CLEAR_DISPLAY 	  	'5'	// Identifiers for ioctl requests
+#define IOCTL_PRINT			'6'				           
+#define IOCTL_LCD_INITIALIZATION	'7'
+#define IOCTL_IO_INITIALIZATION		'8'
+#define IOCTL_SET_BIT_IO_EXPANDER	'9'
+#define IOCTL_GET_BIT_IO_EXPANDER	'10'
 
 // ******** LCD Constants ************************************************************************
 
@@ -73,8 +73,11 @@ char res[1];
 
 #define SET			1
 #define CLEAR                 	0
-#define IO                 	0
-#define LCD                 	1
+
+#define IO_WRITE                0
+#define IO_READ                 1
+#define LCD                 	 4
+
 #define IO_ADDRESS      	0x24
 #define LCD_ADDRESS    		0x27             
 #define CLASS_NAME  	"klcd_io"

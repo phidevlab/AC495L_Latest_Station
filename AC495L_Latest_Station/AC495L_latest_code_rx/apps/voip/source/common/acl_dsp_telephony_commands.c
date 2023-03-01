@@ -231,7 +231,7 @@ void dsp_init(regional_settings_params_t* p_regional_settings_params, voip_dsp_a
 
 	FillRegionalSettingsParams(&InitializationParams, p_regional_settings_params);
 
-
+printf("DSP_FIRMWARE_NAME = %s\r\n", DSP_FIRMWARE_NAME);
 #if defined(S_PLATFORM)
 	if(ReadFirmware(DSP_FIRMWARE_NAME, &pFirmwareBuff, &FileSize)==-1)
 	{
@@ -2118,6 +2118,7 @@ int setchannelparamters_Phi(int ch,int payload, int ptime, int dtmf_inband,int d
 	{
 		if(lines[n].ch[ch].is_channel_open)
 		{
+            printf("----------inside is_channel_open\n");
    			DBG_PRINT("\r\n");
 
 			/* Close a DSP channel */

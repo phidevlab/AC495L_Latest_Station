@@ -18,7 +18,7 @@
 #include "voip_status_handler.h"
 
 
-extern int					acl_main_Voip_Task_AgentSocketFd;
+extern int					g_iAcl_main_Voip_Task_AgentSocketFd;
 extern struct sockaddr_un 	acl_main_Voip_Task_Agent_Remote_Addr;
 
 
@@ -86,8 +86,8 @@ int MyVoipTaskGetHandler(unsigned char *pInfo)
 	switch(pStatusRequest_msg->statusRequest)
 	{
 		case GET_PORT_COUNT:
-				if(cip_get_response(GET_RESPONSE_INTEGER, GET_PORT_COUNT, (char *)&portCount, 
-					acl_main_Voip_Task_AgentSocketFd, acl_main_Voip_Task_Agent_Remote_Addr) == -1)
+				if(cip_get_response(GET_RESPONSE_INTEGER, GET_PORT_COUNT, (char *)&portCount,
+					g_iAcl_main_Voip_Task_AgentSocketFd, acl_main_Voip_Task_Agent_Remote_Addr) == -1)
 					{
 						printf("\nMyVoipTaskGetHandler::cip_get_response()");
 						return (-1);
@@ -101,7 +101,7 @@ int MyVoipTaskGetHandler(unsigned char *pInfo)
 	}
 
 	return 0;
-	
+
 }
 
 int MyVoipTaskGetNHandler(unsigned char *pInfo)
@@ -117,9 +117,9 @@ int MyVoipTaskGetNHandler(unsigned char *pInfo)
 		case GET_PORT_STATUS_N:
 
 				portStatus = getSpecificPortStatus(pStatusRequest_channel_msg->channel);
-				if(cip_get_n_response(GET_N_RESPONSE_INTEGER, 
-					GET_PORT_STATUS_N, pStatusRequest_channel_msg->channel, (char *)&portStatus, 
-					acl_main_Voip_Task_AgentSocketFd, acl_main_Voip_Task_Agent_Remote_Addr) == -1)
+				if(cip_get_n_response(GET_N_RESPONSE_INTEGER,
+					GET_PORT_STATUS_N, pStatusRequest_channel_msg->channel, (char *)&portStatus,
+					g_iAcl_main_Voip_Task_AgentSocketFd, acl_main_Voip_Task_Agent_Remote_Addr) == -1)
 					{
 						printf("\ncip_get_n_response()");
 						return (-1);
@@ -131,7 +131,7 @@ int MyVoipTaskGetNHandler(unsigned char *pInfo)
 				return (-1);
 				break;
 	}
-	
+
 	return 0;
 
 }
@@ -148,16 +148,16 @@ int MyVoipTaskSetNIntegerHandler(unsigned char *pInfo)
 		case SET_PORT_STATUS_N:
 
 				memcpy(&portStatus, pStatusCommand_channel_value_msg->value, sizeof(portStatus));
-				
+
 				if(setSpecificPortStatus(pStatusCommand_channel_value_msg->channel,  portStatus) == -1)
 					{
 						printf("\nMyVoipTaskSetNIntegerHandler::setSpecificPortStatus()");
 						return (-1);
 					}
 
-				if(cip_set_n_response(SET_N_RESPONSE_INTEGER, SET_PORT_STATUS_N, 
-					pStatusCommand_channel_value_msg->channel, (char *)&portStatus, 
-					acl_main_Voip_Task_AgentSocketFd, acl_main_Voip_Task_Agent_Remote_Addr) == -1)
+				if(cip_set_n_response(SET_N_RESPONSE_INTEGER, SET_PORT_STATUS_N,
+					pStatusCommand_channel_value_msg->channel, (char *)&portStatus,
+					g_iAcl_main_Voip_Task_AgentSocketFd, acl_main_Voip_Task_Agent_Remote_Addr) == -1)
 					{
 						printf("\nMyVoipTaskSetNIntegerHandler::cip_set_n_response()");
 						return (-1);

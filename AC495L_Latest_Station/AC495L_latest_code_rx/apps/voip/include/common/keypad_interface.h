@@ -165,6 +165,14 @@ struct sigaction action;
 #define INTERNAL_DIALLING_MODE             2
 #define EXTERNAL_DIALLING_MODE             3
 
+
+/***********KEYBOARD_SWITCHCASE_STATES********/
+ #define ST_KEY_IDLE 				 0
+ #define ST_KEY_PRSS_CNFRM           1
+ #define ST_KEY_PRESS_CHK_FOR_RLS    2
+ #define ST_KEY_RLS_CNFRM            3
+
+
 /***********KEY LIMITS***************/
 
 #define         NO_OF_PTP_CALL_DIGITS               4
@@ -198,6 +206,9 @@ char get_key_group_type(int iPressed_KeyCode);
 char keycode_to_ascii(int iKeycode);
 void clear_validation_processing();
 void validate_key(keypad_keys cInkey);
+
+void scan_keyboard(void);
+
 void Keyboard_Handler(void);
 
 extern int volume_up_handle(int ch);

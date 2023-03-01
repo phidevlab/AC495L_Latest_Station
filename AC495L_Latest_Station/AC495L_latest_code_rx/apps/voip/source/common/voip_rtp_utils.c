@@ -101,7 +101,8 @@ static int g_faxBypassPayloadT;  /* ACL NB 0611102 */
 static int g_dataBypassPayloadT; /* ACL NB 0611102 */
 static int g_bypassCoder;        /* ACL NB 061213 */
 
-static socketInfo_s  socketDB[NUMBER_OF_DSP_CHANNELS];
+//static socketInfo_s  socketDB[NUMBER_OF_DSP_CHANNELS];
+socketInfo_s  socketDB[NUMBER_OF_DSP_CHANNELS];
 
 static int MediaBaseLocalPort = 0;
 
@@ -338,6 +339,7 @@ int aclVoipRtpUtils_createSockets()
         DBG_PRINT("socketDB[%d].remoteNetTermInfo.address = %s\n", curChannel, socketDB[curChannel].remoteNetTermInfo.address);
         DBG_PRINT("socketDB[%d].remoteNetTermInfo.port = %d\n", curChannel, socketDB[curChannel].remoteNetTermInfo.port);
     }
+	Channel0_rtpsfd=socketDB[0].rtpSfd;
     return 0;
 }
 

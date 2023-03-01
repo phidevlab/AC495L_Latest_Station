@@ -122,6 +122,10 @@ int acIPPStopRing()
 		retValue = ACG_FAILURE;
 	}
 	ACIPP_Log_Print("<\n");
+
+	printf("---------------setSpeakerCmd.Command:%d,  setSpeakerCmd.Channel :%d,  setSpeakerCmd.data:%d,  retValue:%d\n"
+	,setSpeakerCmd.Command,setSpeakerCmd.Channel,setSpeakerCmd.data,retValue);
+
 	return (retValue);
 
  }

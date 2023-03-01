@@ -30,16 +30,16 @@
 #include "gw_api_localNetTerm.h"
 
 /****************************************************************************
-*                                                                            
-*	Name:		networking_rtpSocketSend			 			                                                     
-*----------------------------------------------------------------------------                                                                            
-*	Abstract:		sending RTP+T.38 packets to network 
-*----------------------------------------------------------------------------                                                                            
-*	Input:		 
-*----------------------------------------------------------------------------                                                                            
-*  	Output:		none			                                                  
-*----------------------------------------------------------------------------                                                                            
-*	Returns: 	case of error -1 else 0                           
+*
+*	Name:		networking_rtpSocketSend
+*----------------------------------------------------------------------------
+*	Abstract:		sending RTP+T.38 packets to network
+*----------------------------------------------------------------------------
+*	Input:
+*----------------------------------------------------------------------------
+*  	Output:		none
+*----------------------------------------------------------------------------
+*	Returns: 	case of error -1 else 0
 ******************************************************************************/
 int networking_rtpSocketSend(char* buff, int len, int channel)
 {
@@ -49,16 +49,19 @@ int networking_rtpSocketSend(char* buff, int len, int channel)
 	struct sockaddr_in		clientAddr;   /* one for active and one for conf */
 	channelInfo_s			*channelInfo=NULL;
 
-//	printf("\nnetworking_UdpSocketSend:: channel = %d\n", channel);
+	printf("\networking_rtpSocketSend:: channel = %d\n", channel);
 
 	channelInfo = networking_rtpChannelInfoGet(channel);
+
+
+		printf("\networking_rtpSocketSend:: channelInfo = %d\n", channelInfo);
 	if (channelInfo == NULL)
 	{
-		printf("\nnetworking_UdpSocketSend: networking_channelInfoGet failed\n");
+		printf("\networking_rtpSocketSend: networking_channelInfoGet failed\n");
 		return (-1);
 	}
 
-//	printf("\nremote address = %s   remote port = %d\n", 
+//	printf("\nremote address = %s   remote port = %d\n",
 //				channelInfo->remoteNetTermInfo.address, channelInfo->remoteNetTermInfo.port);
 
 	sockAddrSize = sizeof(struct sockaddr_in);
@@ -74,7 +77,7 @@ int networking_rtpSocketSend(char* buff, int len, int channel)
 //	printf("\nsendto:: sFd = %d  len = %d\n", channelInfo->sFd, len);
 
 	/* send packet to the network */
-	rc = sendto(channelInfo->sFd, 
+	rc = sendto(channelInfo->sFd,
                			buff,
 				len,
 				0,
@@ -87,7 +90,7 @@ int networking_rtpSocketSend(char* buff, int len, int channel)
 /******************************************************************************/
 
 
-/* end of gw_api_netTx.c */ 
+/* end of gw_api_netTx.c */
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/

@@ -38,12 +38,11 @@
 #include "voip_main.h"
 #include "server_coms.h"
 #include "config_manager.h"
-
 //#include "voipapp.h"
 //#include "general_defs.h"
 
 
-
+//extern int Call_cmdid;
 struct sockaddr_in mul_sig_addr;
 struct server_reg_bcast
 {
@@ -67,7 +66,8 @@ int       g_iglobal_mul_addr_start_offset;
 int       g_izone_mul_addr_start_offset;
 int       g_iaim_mul_addr_start_offset;
 
-
+int destinationid;
+char delim[]="$";
 //char mul_sinalling_ip[30];
 char       gc_icom_mul_start_addr[TWENTY];
 char       gc_group_mul_start_addr[TWENTY];
@@ -357,6 +357,497 @@ for(i_cntr=ZERO;i_cntr<SEVEN;i_cntr++)
 
 
 /*******************************************************************************************
+ * Function name: parse_broadcast_commands                                                           *
+ * Input arg    : int , void*                                                              *
+ * Output arg   : NONE                                                                     *
+ * Description  : This function extracts broadcast frames received from server and generated approriate events                                                                                     *
+ *                                                                                         *
+********************************************************************************************/
+
+void parse_broadcast_commands (int cmd_id, void* data)
+{
+
+ struct server_coms_param_registration_bcast_t *reg=NULL;
+ char  c_str[TWENTY],c_str1[TWENTY];
+
+
+ switch(cmd_id)
+ {
+
+        case SERVER_REG_BCAST:
+
+            reg = (struct server_coms_param_registration_bcast_t *) data;
+            bzero(c_str,sizeof(c_str));
+            bzero(c_str1,sizeof(c_str1));
+
+            sprintf(c_str1,"%d.%d.%d.%d",
+			reg->mul_sig_ip[0]& 0xff,
+			reg->mul_sig_ip[1]& 0xff,
+			reg->mul_sig_ip[2]& 0xff,
+			reg->mul_sig_ip[3]& 0xff);
+            gSi_mul_singalling_port = reg->port;
+            sprintf(c_str, "%d.%d.%d.%d",
+			reg->ip[0] & 0xff,
+			reg->ip[1] & 0xff,
+			reg->ip[2] & 0xff,
+			reg->ip[3] & 0xff);
+
+
+            strcpy(g_cMul_signalling_ip, c_str1);
+
+         //   printf("port is,......................................%i\n",gSi_mul_singalling_port);
+            strcpy(g_cServer_addr, c_str);
+
+         //   printf("the received ipaddr is %s %s\n",str,str1);
+
+            g_uiFsu_Broadcast_event=SERVER_REG_BCAST_EVENT;
+
+
+            break;
+
+            case WAKE_UP_FRAME:
+             printf("cmd_id in parse_commands is WAKE_UP_FRAME....\n");
+             g_uiFsu_Broadcast_event=WAKE_UP_EVENT;
+            break;
+
+            case SHUTDOWN_FRAME:
+          //   printf("cmd_id in parse_commands is SHUTDOWN_EVENT....\n");
+             g_uiFsu_Broadcast_event=SHUTDOWN_EVENT;
+            break;
+
+            default:
+            printf("Inside default of SERVER_REG_BCAST\n");
+            break;
+ }
+
+}
+
+
+
+/*******************************************************************************************
+ * Function name: parse_multicast_commands                                                           *
+ * Input arg    : int , void*                                                              *
+ * Output arg   : NONE                                                                     *
+ * Description  : This function extracts multicast frames received from server and generated approriate events                                                                                     *
+ *                                                                                         *
+********************************************************************************************/
+
+void parse_multicast_commands (int cmd_id, void* data)
+{
+    struct server_coms_global_call *gbl=NULL;
+    struct server_coms_group_call_status *grp=NULL;
+    struct server_coms_icom_break_in_group_frame *icom_grp=NULL;
+    struct server_coms_icom_call *icom=NULL;
+    struct server_coms_icom_cont_status *icom_stat=NULL;
+    struct server_coms_icom_start_stop_frame *icom_start_stop=NULL;
+     struct server_coms_global_alarm *alm=NULL;
+     struct server_coms_zone_call_status *zone=NULL;
+ struct server_coms_zone_alarm	*zone_alm=NULL;
+
+    int   i_cntr=ZERO,i_j=ZERO,i_k=ZERO;
+    switch(cmd_id)
+    {
+         case INCOMING_GLOBAL_CALL:
+            gbl = (struct server_coms_global_call *) data;
+            incoming_global_call.cmd=gbl->cmd;
+            incoming_global_call.initiator_id=gbl->initiator_id;
+              printf("GLOBAL INCOMING_GLOBAL_CALL FRAME RECEIVED %d \n",
+              incoming_global_call.initiator_id);
+            if(incoming_global_call.initiator_id==stn_config.logical_id)
+             g_uiFsu_mcast_event = GLOBAL_CALL_EVENT;
+            else
+             g_uiFsu_mcast_event = GLOBAL_RX_CALL_EVENT;
+
+
+        break;
+
+        case GLOBAL_RESET:
+             gbl = (struct server_coms_global_call *) data;
+             incoming_global_call.cmd=gbl->cmd;
+             incoming_global_call.initiator_id=gbl->initiator_id;
+             printf("GLOBAL RESET EVENT FRAME RECEIVED %d \n",incoming_global_call.initiator_id);
+             if(incoming_global_call.initiator_id==stn_config.logical_id)
+             {
+                g_uiFsu_mcast_event=GLOBAL_RESET_EVENT;
+                printf("**************  INSIDE GLOBAL_RESET_EVENT\n");
+              }
+             else
+             g_uiFsu_mcast_event = GLOBAL_RESET_RX_EVENT;
+
+        break;
+
+        case GROUP_INCOMING_CALL:
+         printf("GROUP_INCOMING_CALL\n");
+
+             i_cntr=ZERO;
+             grp = (struct server_coms_group_call_status *) data;
+             printf("GROUP_no %d\ngrp.initiator_stn%d\n",grp->group_no,grp->initiator_stn);
+             lcd_group_call_init = grp->initiator_stn;
+             lcd_group_call_no = grp->group_no;
+
+
+             if((stn_config.group_member_info[grp->group_no-MIN_OFFSET]=='1') || ((stn_config.group_initiator[grp->group_no-MIN_OFFSET]=='1')&&(RINGBACK_STATE==g_uiFsu_state)))
+             {
+                 pvt_call.group_no = grp->group_no-MIN_OFFSET;
+                 pthread_mutex_lock(&lock_group_contr);
+                 group_contributor_status_info[pvt_call.group_no].cont1=grp->cont1;
+                 group_contributor_status_info[pvt_call.group_no].cont2=grp->cont2;
+                 pthread_mutex_unlock(&lock_group_contr);
+                 printf("cont1 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont1);
+                 printf("cont2 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont2);
+                 g_uiFsu_mcast_event=INCOMING_GROUP_CALL_EVENT;
+             }
+             else if((stn_config.group_initiator[grp->group_no-MIN_OFFSET]=='1')&&(RINGBACK_STATE==g_uiFsu_state))
+             {
+             pvt_call.group_no = grp->group_no-MIN_OFFSET;
+              pthread_mutex_lock(&lock_group_contr);
+             group_contributor_status_info[pvt_call.group_no].cont1=grp->cont1;
+             group_contributor_status_info[pvt_call.group_no].cont2=grp->cont2;
+			 pthread_mutex_unlock(&lock_group_contr);
+             printf("cont1 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont1);
+             printf("cont2 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont2);
+             g_uiFsu_event=INCOMING_GROUP_CALL_EVENT;
+
+             }
+
+        break;
+
+
+        case GROUP_CONT_STATUS_UPDATE:
+             i_cntr=ZERO;
+             grp = (struct server_coms_group_call_status *) data;
+             i_cntr=grp->group_no-MIN_OFFSET;
+             if(grp->initiator_stn==stn_config.logical_id)
+             {
+             	printf("PTTT RESPONSE EVENT genrerated\n");
+             	if(grp->response==CLEAR)
+             	{
+                  g_uiFsu_mcast_event=GRP_PTT_REQUEST_EVENT;
+                }
+                else
+                {
+                  g_uiFsu_mcast_event=GRP_PTT_RELEASE_EVENT;
+                }
+             }
+              pthread_mutex_lock(&lock_group_contr);
+             group_contributor_status_info[i_cntr].cont1=grp->cont1;
+             group_contributor_status_info[i_cntr].cont2=grp->cont2;
+
+             printf("server_coms_group_call_info[%d].cont2= %d\n",i_cntr,group_contributor_status_info[i_cntr].cont2);
+             pthread_mutex_unlock(&lock_group_contr);
+        break;
+
+        case GROUP_INTERCOM_BREAK_IN_FRAME:
+              printf("***********************INSIDE GROUP_INTERCOM_BREAK_IN_FRAME\n");
+            icom_grp=(struct server_coms_icom_break_in_group_frame *) data;
+
+             for(i_cntr=ZERO;i_cntr<THIRTY_TWO;i_cntr++)
+             {
+              // j=i;
+
+                printf("............icom_grp->contributor_list[i_j] %d\n",icom_grp->contributor_list[i_j]);
+               icom_contributor_status_info[i_cntr].cont1=icom_grp->contributor_list[i_j];
+               i_j++;
+                printf(".............icom_grp->contributor_list[i_j] %d\n",icom_grp->contributor_list[i_j]);
+               icom_contributor_status_info[i_cntr].cont2=icom_grp->contributor_list[i_j];
+               i_j++;
+               printf("ICOM[%d]  cont1=%d cont2=%d\n",i_cntr+MIN_OFFSET
+               , icom_contributor_status_info[i_cntr].cont1,
+                icom_contributor_status_info[i_cntr].cont2);
+
+             }
+
+
+        break;
+
+
+        case GROUP_RESET:
+             grp = (struct server_coms_group_call_status *) data;
+           /*  if(stn_config.group_member_info[grp->group_no-MIN_OFFSET]=='1')
+             {
+				g_uiFsu_event=GROUP_RESET_EVENT;
+			 }
+			 else if((stn_config.group_initiator[grp->group_no-MIN_OFFSET]=='1')&&(GROUP_STATE==g_uiFsu_state))
+			 {
+			 	g_uiFsu_event=GROUP_RESET_EVENT;
+			 }*/
+			printf("Group no %d grp  no %d \n",pvt_call.group_no,grp->group_no);
+			if((pvt_call.group_no+MIN_OFFSET) == grp->group_no)
+			{
+                printf("GROUP_RESET_EVENT is set \n");
+				g_uiFsu_mcast_event=GROUP_RESET_EVENT;
+			}
+             printf("GROUP_RESET EVENT received \n");
+        break;
+
+        case ICOM_CONT_STATUS_UPDATE:
+             i_cntr=ZERO;
+             icom_stat=(struct server_coms_icom_cont_status *) data;
+              i_cntr=icom_stat->icom_no-MIN_OFFSET;
+            printf("icom-stat initiator %d %d \n",icom_stat->initiator_stn,i_cntr);
+             if(icom_stat->initiator_stn==stn_config.logical_id)
+             {
+                printf("PTTT RESPONSE EVENT genrerated\n");
+                g_uiFsu_mcast_event=PTT_RESPONSE_EVENT;
+             }
+
+               pthread_mutex_lock(&lock_icom_contr);
+             icom_contributor_status_info[i_cntr].cont1=icom_stat->cont1;
+
+             icom_contributor_status_info[i_cntr].cont2=icom_stat->cont2;
+               printf("icom_contributor_status_info[%d].cont1= %d\n",i_cntr,icom_contributor_status_info[i_cntr].cont1);
+               pthread_mutex_unlock(&lock_icom_contr);
+
+             printf("............... g_uiFsu_state :%d \n",g_uiFsu_state);
+
+			if(g_uiFsu_state == IDLE_STATE || g_uiFsu_state==INTERCOM_STATE)
+			{
+
+				if((i_cntr==pvt_call.curr_icom_no) &&
+               ((icom_contributor_status_info[i_cntr].cont1!=CLEAR) ||
+               (icom_contributor_status_info[i_cntr].cont2 != CLEAR)))
+               {
+
+                   printf("Inside IDLE state of ICOM\n");
+                 if(g_iHandset_lifted_signal==CLEAR)
+                 {
+                    printf("g_iHandset_lifted_signal is CLEAR.......\n");
+                    operate_gpio(ICOM_MIX_ACT,WRITE,GPIO_OFF);
+                    operate_gpio(MB_AMP_MUTE,WRITE,GPIO_OFF);
+                 }
+               }
+               else
+               {
+               	if(i_cntr==pvt_call.curr_icom_no && g_iHandset_lifted_signal==CLEAR)
+               	{
+                     printf("In else of ICOM state ......\n");
+					operate_gpio(ICOM_MIX_ACT,WRITE,GPIO_ON);
+					if(stn_config.default_AIM)
+					{
+						operate_gpio(MB_AMP_MUTE,WRITE,GPIO_OFF);
+					}
+					else
+					{
+						operate_gpio(MB_AMP_MUTE,WRITE,GPIO_ON);
+					}
+                }
+               }
+			}
+
+        break;
+
+        case INTERCOM_STATE_CHANGE_FRAME:
+
+             printf("***********************INSIDE INTERCOM_STATE_CHANGE_FRAME\n");
+             icom_start_stop = (struct server_coms_icom_start_stop_frame *) data;
+             for(i_cntr=ZERO;i_cntr<THIRTY_TWO;i_cntr++)
+             {
+                if(icom_start_stop->icom_no[i_cntr]>ZERO)
+                {
+
+                    if(stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]-
+                    MIN_OFFSET==LIVE])
+                    {
+                         stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]
+                         -MIN_OFFSET] = DEAD;
+                          if(stn_config.default_intercom==icom_start_stop->icom_no[i_cntr])
+                          {
+                           g_uiFsu_mcast_event=ICOM_STATE_CHANGE_EVENT;
+                          }
+                    }
+                    else
+                    {
+                      stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]-
+                      MIN_OFFSET] = LIVE;
+                       if((stn_config.default_intercom)==icom_start_stop->icom_no[i_cntr])
+                       {
+                        add_membership(g_Iicom_fds[stn_config.default_intercom-MIN_OFFSET]);
+                       }
+
+                    }
+
+            icom_contributor_status_info[icom_start_stop->icom_no[i_cntr]-MIN_OFFSET].cont1=CLEAR;
+            icom_contributor_status_info[icom_start_stop->icom_no[i_cntr]-MIN_OFFSET].cont2=CLEAR;
+
+                }
+             }
+        break;
+
+        case INCOMING_GLOBAL_ALARM:
+
+            alm = (struct server_coms_global_alarm *) data;
+            incoming_global_alm_call.cmd=alm->cmd;
+            incoming_global_alm_call.initiator_id=alm->initiator_id;
+            incoming_global_alm_call.alarm_no=alm->alarm_no;
+
+            pg_call.alm_no=alm->alarm_no;
+             printf("INCOMING_GLOBAL_ALARM FRAME received %d \n",incoming_global_alm_call.initiator_id);
+
+             lcd_global_alm_init = incoming_global_alm_call.initiator_id;
+             lcd_global_alm_no = incoming_global_alm_call.alarm_no=alm->alarm_no;
+
+            if(incoming_global_alm_call.initiator_id==stn_config.logical_id)
+            g_uiFsu_mcast_event = GLOBAL_ALM_EVENT;
+            else
+            g_uiFsu_mcast_event = GLOBAL_RX_ALM_EVENT;
+
+
+        break;
+        case ZONE_INCOMING_CALL:
+            printf("inside ZONE_INCOMING_CALL**************\n");
+			zone = (struct server_coms_zone_call_status *) data;
+			printf("fcs id is: %d, alarmid : %d, zone no: %d ", zone->initiator_id, zone->alarm_module_id,zone->zone_no);
+			lcd_zone_call_init = zone->initiator_id;
+			lcd_zone_call_no = zone->zone_no;
+			printf("Inside zone call %d",zone->zone_no);
+						printf("Inside zone call --2 %d",lcd_zone_call_no);
+
+            //lcd_zone_call_no_show = zone->zone_no;
+
+			if(stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1')
+			{
+                printf("inside ZONE_INCOMING_CALL_if_1**************\n");
+			    if(g_uiFsu_state==RINGBACK_STATE)
+            	{
+                    printf("inside ZONE_INCOMING_CALL_if_2**************\n");
+					pg_call.zone_no = zone->zone_no-MIN_OFFSET;
+            		g_uiFsu_event=INCOMING_ZONE_CALL_EVENT;
+            		break;
+				}
+			}
+
+           if(stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='1')
+            {
+
+                pg_call.zone_no = zone->zone_no-MIN_OFFSET;
+                printf("ZOne no is %d \n",pg_call.zone_no);
+                g_uiFsu_mcast_event = INCOMING_ZONE_CALL_RX_EVENT;
+
+			}
+        break;
+
+        case ZONE_ALM_INCOMING_CALL:
+			zone_alm = (struct server_coms_zone_alarm *) data;
+            printf("zone alarm no %d zone alarm no %d \n",pg_call.zone_no,zone_alm->zone_no);
+            lcd_zone_alm_init = zone_alm->initiator_id;
+            lcd_alm_zone_no = zone_alm->zone_no;
+
+			if(stn_config.zone_initiator[zone_alm->zone_no-MIN_OFFSET]=='1')
+			{
+			    if(g_uiFsu_state==RINGBACK_STATE)
+            	{
+					pg_call.zone_no = zone_alm->zone_no-MIN_OFFSET;
+					pg_call.alm_no  = zone_alm->alarm_no;
+                    g_uiFsu_event = INCOMING_ZONE_ALM_EVENT;
+                    break;
+
+				}
+			}
+
+            if(stn_config.zone_member_info[zone_alm->zone_no-MIN_OFFSET]=='1')
+            {
+
+				pg_call.zone_no = zone_alm->zone_no-MIN_OFFSET;
+				pg_call.alm_no  = zone_alm->alarm_no;
+                g_uiFsu_mcast_event = INCOMING_ZONE_ALM_RX_EVENT;
+
+			}
+        break;
+
+        case ZONE_RESET:
+             zone = (struct server_coms_zone_call_status *) data;
+
+			printf("zone no %d zone  no %d \n",pg_call.zone_no,zone->zone_no);
+
+			/* if((pg_call.zone_no == zone->zone_no-MIN_OFFSET) &&
+                        ((pg_call.pg_call_busy == SET) || (pvt_call.pvt_call_busy == SET)))
+                        {
+                printf("Inside if(pg_call.zone_no == zone->zone_no-MIN_OFFSET");
+              if((stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1') || (g_uiFsu_state==PAGE_RESET_RINGBACK_STATE))
+                {
+                    printf("Initiator ZONE_RESET_EVENT is set\n");
+                     g_uiFsu_event = ZONE_RESET_EVENT;
+                }
+                else
+                {
+                    printf("Receiver ZONE_RESET_RX_EVENT is set\n");
+                     g_uiFsu_mcast_event = ZONE_RESET_RX_EVENT;
+                }
+                        }*/
+
+                if((pg_call.zone_no == zone->zone_no-MIN_OFFSET) &&
+			((pg_call.pg_call_busy == SET) || (pvt_call.pvt_call_busy == SET)))
+			{
+                printf("Inside if(pg_call.zone_no == zone->zone_no-MIN_OFFSET\n");
+                if((stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1') || (stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='1'))
+                {
+                    printf("Inside zone_initiator || zone_member\n");
+                    if((stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1') && ((g_uiFsu_state == PAGE_INITIATOR_STATE) || (g_uiFsu_state ==PAGE_RESET_RINGBACK_STATE)))
+                    {
+                        printf("Initiator ZONE_RESET_EVENT is set\n");
+                        g_uiFsu_event = ZONE_RESET_EVENT;
+                    }
+                    else
+                    {
+                        printf("Receiver ZONE_RESET_RX_EVENT is set\n");
+                        g_uiFsu_mcast_event = ZONE_RESET_RX_EVENT;
+
+                    }
+
+                }
+            }
+		/*	if(stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='1' )
+			{
+                //if(g_uiFsu_state==PAGE_RESET_RINGBACK_STATE)// originally added by shraddha madam
+
+                 printf("zone->initiator_id%d\n",zone->initiator_id);
+                 //reseted by time out
+                 if((g_uiFsu_state==PAGE_INITIATOR_STATE) && (pg_call.zone_no==zone->zone_no) )
+                   {
+                     printf("inside g_uiFsu_state==PAGE_INITIATOR_STATE\n");
+                     g_uiFsu_event = ZONE_RESET_EVENT;
+                   }
+                    //reseted by reset key
+                  else if(g_uiFsu_state==PAGE_RESET_RINGBACK_STATE)
+                   {
+                    printf("inside g_uiFsu_state==PAGE_RESET_RINGBACK_STATE \n");
+                    g_uiFsu_event = ZONE_RESET_EVENT;
+                   }
+                  else//zone reset for receiver fcs which will handle in background.
+                   {
+                    g_uiFsu_mcast_event = ZONE_RESET_RX_EVENT;
+                   }
+            }
+            if(stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1' && stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='0')
+			{
+                printf("Checking zone initiator\n");
+
+                    if((g_uiFsu_state==PAGE_INITIATOR_STATE) && (pg_call.zone_no == zone->zone_no))
+                   {
+                     printf("inside g_uiFsu_state==PAGE_INITIATOR_STATE\n");
+                     g_uiFsu_event = ZONE_RESET_EVENT;
+                   }
+                    //reseted by reset key
+                  else if(g_uiFsu_state==PAGE_RESET_RINGBACK_STATE)
+                   {
+                    printf("**********inside g_uiFsu_state==PAGE_RESET_RINGBACK_STATE************ \n");
+                    g_uiFsu_event = ZONE_RESET_EVENT;
+                   }
+                   else//zone reset for receiver fcs which will handle in background.
+                   {
+                    g_uiFsu_mcast_event = ZONE_RESET_RX_EVENT;
+                   }
+
+			} */
+             printf("ZONE_RESET event %dreceived \n",g_uiFsu_event);
+        break;
+
+         default :
+         printf("error in parse command default\n");
+
+    }
+}
+/*******************************************************************************************
  * Function name: parse_commands                                                           *
  * Input arg    : int , void*                                                              *
  * Output arg   : NONE                                                                     *
@@ -367,28 +858,25 @@ for(i_cntr=ZERO;i_cntr<SEVEN;i_cntr++)
 void parse_commands (int cmd_id, void* data)
 {
 
- struct server_coms_param_registration_bcast_t *reg=NULL;
- struct server_coms_global_alarm *alm=NULL;
- struct server_coms_global_call *gbl=NULL;
- struct server_coms_icom_call *icom=NULL;
- struct server_coms_icom_cont_status *icom_stat=NULL;
- struct server_coms_group_call_status *grp=NULL;
- struct server_coms_zone_call_status *zone=NULL;
- struct server_coms_zone_alarm	*zone_alm=NULL;
+// struct server_coms_param_registration_bcast_t *reg=NULL;
+ //struct server_coms_global_alarm *alm=NULL;
+ //struct server_coms_global_call *gbl=NULL;
+ //struct server_coms_icom_call *icom=NULL;
+ //struct server_coms_icom_cont_status *icom_stat=NULL;
+ //struct server_coms_group_call_status *grp=NULL;
+ //struct server_coms_zone_call_status *zone=NULL;
+ //struct server_coms_zone_alarm	*zone_alm=NULL;
  struct server_coms_group_call_reset_individual *grp_rst=NULL;
- struct server_coms_icom_start_stop_frame *icom_start_stop=NULL;
- struct server_coms_icom_break_in_group_frame *icom_grp=NULL;
+ //struct server_coms_icom_start_stop_frame *icom_start_stop=NULL;
+ //struct server_coms_icom_break_in_group_frame *icom_grp=NULL;
  struct server_coms_diagnostics_frame *diag=NULL;
  struct station_configuration  *cfg=NULL;
-
- //struct server_coms_conferance_call *conf = NULL;
-
-
  //struct server_coms_ack_response_frame *ack_response=NULL;
 
  short *ptr=NULL;
  char  c_str[TWENTY],c_str1[TWENTY];
  char  *result=NULL;
+
  char  c_del[] = ".";
  char  c_delim[] = "$";
  int   i_cntr=ZERO,i_j=ZERO,i_k=ZERO ;
@@ -397,7 +885,7 @@ void parse_commands (int cmd_id, void* data)
 	switch(cmd_id)
 	{
 
-        case SERVER_REG_BCAST:
+       /* case SERVER_REG_BCAST:
 
             reg = (struct server_coms_param_registration_bcast_t *) data;
             bzero(c_str,sizeof(c_str));
@@ -426,19 +914,17 @@ void parse_commands (int cmd_id, void* data)
             g_uiFsu_event=SERVER_REG_BCAST_EVENT;
 
 
-            break;
+            break;*/
 
-        case WAKE_UP_FRAME:
-            printf("cmd_id in parse_commands is WAKE_UP_FRAME....\n");
+       /* case WAKE_UP_FRAME:
+             printf("cmd_id in parse_commands is WAKE_UP_FRAME....\n");
+             g_uiFsu_event=WAKE_UP_EVENT;
+        break;*/
+
+        case FCS_RESTART_FRAME:
+             printf("*********cmd_id in parse_commands is FCS_RESTART_FRAME....\n");
              g_uiFsu_event=WAKE_UP_EVENT;
         break;
-
-
-        case FSU_RESTART_FRAME:
-            printf("cmd_id in parse_commands is FSU_RESTART_FRAME....\n");
-             g_uiFsu_event=WAKE_UP_EVENT;
-        break;
-
 
         case NEG_RESPONSE_FRAME_CMD:
              g_uiFsu_event=NEG_RES_EVENT;
@@ -477,8 +963,7 @@ void parse_commands (int cmd_id, void* data)
                         stn_config.fcs_desc[i_j]=*(result+i_j);
                     }
                     printf("fcs_desc %s\n",stn_config.fcs_desc);
-                    strcpy(lcd_fcs_desc ,stn_config.fcs_desc);
-
+                    //lcd_fcs_desc = stn_config.fcs_desc;
                 break;
 
                 case FIVE:
@@ -738,13 +1223,16 @@ void parse_commands (int cmd_id, void* data)
 
                 case THIRTY_TWO:
                     stn_config.pvt_call_timeout=atoi(result);
+                    stn_config.pvt_call_timeout = stn_config.pvt_call_timeout * APP_TIMER_MULTIPLIER;
                     printf("pvt_call_timeout is %d\n",stn_config.pvt_call_timeout);
                     break;
 
                 case THIRTY_THREE:
                     stn_config.pg_call_timeout=atoi(result);
+                    stn_config.pg_call_timeout=   stn_config.pg_call_timeout * APP_TIMER_MULTIPLIER;
                     printf("pg_call_timeout IS %d\n",stn_config.pg_call_timeout);
                     break;
+
 
                 case THIRTY_FOUR:
                     stn_config.alarm_call_timeout=atoi(result);
@@ -813,7 +1301,76 @@ void parse_commands (int cmd_id, void* data)
             g_uiFsu_event=ACK_RESPONSE;
         break;
 
-        case INCOMING_GLOBAL_ALARM:
+
+        case P2P_CALL_REQUEST:
+            printf("P2P_CALL_REQUEST Frame  received....%d\n",g_igroup_fds[0]);
+           // result = "192.168.1.135";
+             result=strtok(data,c_delim);
+            while(result!=NULL)
+            {
+                switch(i_cntr)
+                {
+                case FOUR:
+                    sprintf(pvt_call.initiator_ip,"%s",result);
+                    printf("InitiatorIP=%s groupfd is : %d\n",pvt_call.initiator_ip, g_igroup_fds[0]);
+                    printf(" groupfd is : %d\n",g_igroup_fds[0]);
+                break;
+
+                }
+             result = strtok( NULL, c_delim);
+		    i_cntr++;
+            }
+             printf("group fd is ....%d\n",g_igroup_fds[0]);
+            g_uiFsu_event=P2P_CALL_EVENT;
+        break;
+
+         case P2P_CALL_ACK:
+            printf("P2P_CALL_ACK Frame  received....\n");
+            result=strtok(data,c_delim);
+            while(result!=NULL)
+            {
+                switch(i_cntr)
+                {
+                case FOUR:
+                     sprintf(pvt_call.destination_ip,"%s",result);
+                    printf("destinationIP=%s\n",pvt_call.destination_ip);
+                break;
+
+                }
+             result = strtok( NULL, c_delim);
+		    i_cntr++;
+            }
+             g_uiFsu_event=P2P_CALL_EVENT;
+        break;
+
+        case P2P_CALL_RESET_REQ:
+            printf("P2P_CALL_RESET Frame  received\n");
+
+            g_uiFsu_event=P2P_RESET_EVENT;
+        break;
+
+        case P2P_CALL_RESET_PVTTIMEOUT_REQ:
+            printf("P2P_CALL_RESET Frame  received from server....\n");
+            g_uiFsu_event=P2P_RESET_PVTTIMEOUT_EVENT;
+        break;
+        case P2P_CALL_RESET_ACK:
+            printf("P2P_CALL_RESET_ACK Frame  received....\n");
+            printf("............... g_uiFsu_state :%d \n",g_uiFsu_state);
+            g_uiFsu_event=P2P_RESET_EVENT;
+        break;
+
+        case P2P_NO_RESPONSE:
+            printf("P2P_NO_RESPONSE Frame  received....\n");
+            g_uiFsu_event=NO_P2P_RESPONSE_EVENT;
+        break;
+
+        case P2P_BRK_CALL_RESET_REQ:
+         printf("P2P_BRK_CALL_RESET_REQ Frame  received....\n");
+           g_uiFsu_event=P2P_RESET_EVENT;
+        break;
+
+
+        /*case INCOMING_GLOBAL_ALARM:
 
             alm = (struct server_coms_global_alarm *) data;
             incoming_global_alm_call.cmd=alm->cmd;
@@ -821,19 +1378,14 @@ void parse_commands (int cmd_id, void* data)
             incoming_global_alm_call.alarm_no=alm->alarm_no;
 
             pg_call.alm_no=alm->alarm_no;
-            printf("INCOMING_GLOBAL_ALARM FRAME received %d \n",incoming_global_alm_call.initiator_id);
-
-            lcd_global_alm_init = incoming_global_alm_call.initiator_id;
-            lcd_global_alm_no = incoming_global_alm_call.alarm_no=alm->alarm_no;
-
-
+             printf("INCOMING_GLOBAL_ALARM FRAME received %d \n",incoming_global_alm_call.initiator_id);
             if(incoming_global_alm_call.initiator_id==stn_config.logical_id)
             g_uiFsu_event = GLOBAL_ALM_EVENT;
             else
             g_uiFsu_event = GLOBAL_RX_ALM_EVENT;
 
 
-        break;
+        break;*/
 
        /* case ONLINE_LOCAL_CONFIG_DOWNLOAD:
              cfg=(struct station_configuration *) data;
@@ -879,48 +1431,39 @@ void parse_commands (int cmd_id, void* data)
              strcpy(stn_config.footer,cfg->footer);
         break;*/
 
-        case GROUP_INCOMING_CALL:
-              printf("GROUP_INCOMING_CALL\n");
+       /* case GROUP_INCOMING_CALL:
 
              i_cntr=ZERO;
              grp = (struct server_coms_group_call_status *) data;
-             printf("GROUP_no %d\ngrp.initiator_stn%d\n",grp->group_no,grp->initiator_stn);
-
-             lcd_group_call_init = grp->initiator_stn;
-             lcd_group_call_no = grp->group_no;
-
-
              if(stn_config.group_member_info[grp->group_no-MIN_OFFSET]=='1')
              {
-                     pvt_call.group_no = grp->group_no-MIN_OFFSET;
-                     pthread_mutex_lock(&lock_group_contr);
-                     group_contributor_status_info[pvt_call.group_no].cont1=grp->cont1;
-                     group_contributor_status_info[pvt_call.group_no].cont2=grp->cont2;
-                     pthread_mutex_unlock(&lock_group_contr);
-                     printf("cont1 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont1);
-                     printf("cont2 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont2);
-                     g_uiFsu_event=INCOMING_GROUP_CALL_EVENT;
+             pvt_call.group_no = grp->group_no-MIN_OFFSET;
+              pthread_mutex_lock(&lock_group_contr);
+             group_contributor_status_info[pvt_call.group_no].cont1=grp->cont1;
+             group_contributor_status_info[pvt_call.group_no].cont2=grp->cont2;
+              pthread_mutex_unlock(&lock_group_contr);
+             printf("cont1 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont1);
+             printf("cont2 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont2);
+             g_uiFsu_event=INCOMING_GROUP_CALL_EVENT;
              }
              else if((stn_config.group_initiator[grp->group_no-MIN_OFFSET]=='1')&&(RINGBACK_STATE==g_uiFsu_state))
              {
-                     pvt_call.group_no = grp->group_no-MIN_OFFSET;
-                     pthread_mutex_lock(&lock_group_contr);
-                     group_contributor_status_info[pvt_call.group_no].cont1=grp->cont1;
-                     group_contributor_status_info[pvt_call.group_no].cont2=grp->cont2;
-                     pthread_mutex_unlock(&lock_group_contr);
-                     printf("cont1 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont1);
-                     printf("cont2 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont2);
-                     g_uiFsu_event=INCOMING_GROUP_CALL_EVENT;
+             pvt_call.group_no = grp->group_no-MIN_OFFSET;
+              pthread_mutex_lock(&lock_group_contr);
+             group_contributor_status_info[pvt_call.group_no].cont1=grp->cont1;
+             group_contributor_status_info[pvt_call.group_no].cont2=grp->cont2;
+			 pthread_mutex_unlock(&lock_group_contr);
+             printf("cont1 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont1);
+             printf("cont2 %d \n",server_coms_group_call_info[pvt_call.group_no].cont1=grp->cont2);
+             g_uiFsu_event=INCOMING_GROUP_CALL_EVENT;
+
              }
-        break;
+        break;*/
 
-
+/*
         case ZONE_INCOMING_CALL:
 			zone = (struct server_coms_zone_call_status *) data;
 			printf("fcs id is: %d, alarmid : %d, zone no: %d ", zone->initiator_id, zone->alarm_module_id,zone->zone_no);
-			lcd_zone_call_init = zone->initiator_id;
-            lcd_zone_call_no = zone->zone_no;
-
 			if(stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1')
 			{
 			    if(g_uiFsu_state==RINGBACK_STATE)
@@ -944,14 +1487,11 @@ void parse_commands (int cmd_id, void* data)
         case ZONE_ALM_INCOMING_CALL:
 			zone_alm = (struct server_coms_zone_alarm *) data;
             printf("zone alarm no %d zone alarm no %d \n",pg_call.zone_no,zone_alm->zone_no);
-            lcd_zone_alm_init = zone_alm->initiator_id;
-            lcd_alm_zone_no = zone_alm->zone_no;
-           	if(stn_config.zone_initiator[zone_alm->zone_no-MIN_OFFSET]=='1')
+			if(stn_config.zone_initiator[zone_alm->zone_no-MIN_OFFSET]=='1')
 			{
 			    if(g_uiFsu_state==RINGBACK_STATE)
             	{
 					pg_call.zone_no = zone_alm->zone_no-MIN_OFFSET;
-					printf("zone_alm->zone_no-MIN_OFFSET %d \n",zone_alm->zone_no-MIN_OFFSET);
 					pg_call.alm_no  = zone_alm->alarm_no;
             		g_uiFsu_event=INCOMING_ZONE_ALM_EVENT;
             		break;
@@ -966,9 +1506,9 @@ void parse_commands (int cmd_id, void* data)
                 g_uiFsu_event   = INCOMING_ZONE_ALM_RX_EVENT;
 
 			}
-        break;
+        break;*/
 
-        case GROUP_RESET:
+       /* case GROUP_RESET:
              grp = (struct server_coms_group_call_status *) data;
            /*  if(stn_config.group_member_info[grp->group_no-MIN_OFFSET]=='1')
              {
@@ -978,21 +1518,20 @@ void parse_commands (int cmd_id, void* data)
 			 {
 			 	g_uiFsu_event=GROUP_RESET_EVENT;
 			 }*/
-			printf("Group no %d grp  no %d \n",pvt_call.group_no,grp->group_no);
+			/*printf("Group no %d grp  no %d \n",pvt_call.group_no,grp->group_no);
 			if((pvt_call.group_no+MIN_OFFSET) == grp->group_no)
 			{
                 printf("GROUP_RESET_EVENT is set \n");
 				g_uiFsu_event=GROUP_RESET_EVENT;
 			}
              printf("GROUP_RESET EVENT received \n");
-        break;
+        break;*/
 
-
+/*
         case ZONE_RESET:
              zone = (struct server_coms_zone_call_status *) data;
 
 			printf("zone no %d zone  no %d \n",pg_call.zone_no,zone->zone_no);
-//printf("stn_config.zone_initiator[zone_alm->zone_no-MIN_OFFSET]%d ,%c\n",stn_config.zone_initiator[zone_alm->zone_no-MIN_OFFSET],stn_config.zone_initiator[zone_alm->zone_no-MIN_OFFSET]);
 			if(stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='1' )
 			{
                 //if(g_uiFsu_state==PAGE_RESET_RINGBACK_STATE)// originally added by shraddha madam
@@ -1015,7 +1554,7 @@ void parse_commands (int cmd_id, void* data)
                     g_uiFsu_event = ZONE_RESET_RX_EVENT;
                    }
             }
-          if(stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1' && stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='0')
+            if(stn_config.zone_initiator[zone->zone_no-MIN_OFFSET]=='1' && stn_config.zone_member_info[zone->zone_no-MIN_OFFSET]=='0')
 			{
                 printf("Checking zone initiator\n");
 
@@ -1038,8 +1577,8 @@ void parse_commands (int cmd_id, void* data)
 			}
              printf("ZONE_RESET event %dreceived \n",g_uiFsu_event);
         break;
-
-        case GROUP_CONT_STATUS_UPDATE:
+*/
+        /*case GROUP_CONT_STATUS_UPDATE:
              i_cntr=ZERO;
              grp = (struct server_coms_group_call_status *) data;
              i_cntr=grp->group_no-MIN_OFFSET;
@@ -1061,7 +1600,7 @@ void parse_commands (int cmd_id, void* data)
 
              printf("server_coms_group_call_info[%d].cont2= %d\n",i_cntr,group_contributor_status_info[i_cntr].cont2);
              pthread_mutex_unlock(&lock_group_contr);
-        break;
+        break;*/
 
 
 		case GROUP_INDIVIDUAL_RESET_FSU:
@@ -1069,14 +1608,11 @@ void parse_commands (int cmd_id, void* data)
         	    g_uiFsu_event=GRP_INDIVIDUAL_RESET_EVENT;
         break;
 
-        case ICOM_CONT_STATUS_UPDATE:
+        /*case ICOM_CONT_STATUS_UPDATE:
              i_cntr=ZERO;
              icom_stat=(struct server_coms_icom_cont_status *) data;
-             i_cntr=icom_stat->icom_no-MIN_OFFSET;
-             lcd_icom_no = icom_stat->icom_no;
-             printf("icom-stat initiator %d %d \n",icom_stat->initiator_stn,i_cntr);
-
-
+              i_cntr=icom_stat->icom_no-MIN_OFFSET;
+            printf("icom-stat initiator %d %d \n",icom_stat->initiator_stn,i_cntr);
              if(icom_stat->initiator_stn==stn_config.logical_id)
              {
                 printf("PTTT RESPONSE EVENT genrerated\n");
@@ -1084,57 +1620,49 @@ void parse_commands (int cmd_id, void* data)
              }
 
                pthread_mutex_lock(&lock_icom_contr);
-               icom_contributor_status_info[i_cntr].cont1=icom_stat->cont1;
+             icom_contributor_status_info[i_cntr].cont1=icom_stat->cont1;
 
-               icom_contributor_status_info[i_cntr].cont2=icom_stat->cont2;
+             icom_contributor_status_info[i_cntr].cont2=icom_stat->cont2;
                printf("icom_contributor_status_info[%d].cont1= %d\n",i_cntr,icom_contributor_status_info[i_cntr].cont1);
-               printf("icom_contributor_status_info[%d].cont2= %d\n",i_cntr,icom_contributor_status_info[i_cntr].cont2);
                pthread_mutex_unlock(&lock_icom_contr);
 
              printf("............... g_uiFsu_state :%d \n",g_uiFsu_state);
 
 			if(g_uiFsu_state == IDLE_STATE || g_uiFsu_state==INTERCOM_STATE)
 			{
-                   // sprintf(g_cLine2_buf,"Channel:%d       ",lcd_icom_no);
-                   // send_msg_ui(IDLE_STATE,LCD,LINE2,CONTINUE_DISPLAY,g_cLine2_buf,LCD_CLR_SECOND_LINE,0);
 
-                if((i_cntr==pvt_call.curr_icom_no) &&
-                   ((icom_contributor_status_info[i_cntr].cont1!=CLEAR) ||
-                   (icom_contributor_status_info[i_cntr].cont2 != CLEAR)))
-                   {
+				if((i_cntr==pvt_call.curr_icom_no) &&
+               ((icom_contributor_status_info[i_cntr].cont1!=CLEAR) ||
+               (icom_contributor_status_info[i_cntr].cont2 != CLEAR)))
+               {
 
-                     printf("Inside IDLE state of ICOM\n");
-                     if(g_iHandset_lifted_signal==CLEAR)
-                     {
-                        printf("g_iHandset_lifted_signal is CLEAR.......\n");
-                        //operate_gpio(ICOM_MIX_ACT,WRITE,GPIO_OFF);
-                       // operate_gpio(MUSIC_VOL_BYPASS,WRITE,GPIO_OFF);
-                     }
-                   }
-                else
-                   {
-                        if(i_cntr==pvt_call.curr_icom_no && g_iHandset_lifted_signal==CLEAR)
-                        {
-                             printf("In else of ICOM state ......\n");
-
-                            // operate_gpio(ICOM_MIX_ACT,WRITE,GPIO_ON);
-                             if(stn_config.default_AIM)
-                             {
-                                //operate_gpio(MUSIC_VOL_BYPASS,WRITE,GPIO_OFF);
-                             }
-                             else
-                             {
-                                //operate_gpio(MUSIC_VOL_BYPASS,WRITE,GPIO_ON);
-                             }
-                        }
-
-
-
+                   printf("Inside IDLE state of ICOM\n");
+                 if(g_iHandset_lifted_signal==CLEAR)
+                 {
+                    printf("g_iHandset_lifted_signal is CLEAR.......\n");
+                    operate_gpio(ICOM_MIX_ACT,WRITE,GPIO_OFF);
+                    operate_gpio(MB_AMP_MUTE,WRITE,GPIO_OFF);
                  }
-
+               }
+               else
+               {
+               	if(i_cntr==pvt_call.curr_icom_no && g_iHandset_lifted_signal==CLEAR)
+               	{
+                     printf("In else of ICOM state ......\n");
+					operate_gpio(ICOM_MIX_ACT,WRITE,GPIO_ON);
+					if(stn_config.default_AIM)
+					{
+						operate_gpio(MB_AMP_MUTE,WRITE,GPIO_OFF);
+					}
+					else
+					{
+						operate_gpio(MB_AMP_MUTE,WRITE,GPIO_ON);
+					}
+                }
+               }
 			}
 
-        break;
+        break;*/
 
         case DIAGNOSTICS_FRAME:
              diag=(struct server_coms_diagnostics_frame *) data;
@@ -1143,32 +1671,31 @@ void parse_commands (int cmd_id, void* data)
         break;
 
         case CONF_TIMER_UPDATE_FRAME:
-             //lcd_conf_init= server_coms_conferance_call.initiator_stn;
              g_uiFsu_event=CONF_TIMER_UPDATE_EVENT;
         break;
 
-        case INCOMING_GLOBAL_CALL:
+       /* case INCOMING_GLOBAL_CALL:
             gbl = (struct server_coms_global_call *) data;
             incoming_global_call.cmd=gbl->cmd;
             incoming_global_call.initiator_id=gbl->initiator_id;
               printf("GLOBAL INCOMING_GLOBAL_CALL FRAME RECEIVED %d \n",
               incoming_global_call.initiator_id);
-              lcd_global_call_init = incoming_global_call.initiator_id;
             if(incoming_global_call.initiator_id==stn_config.logical_id)
              g_uiFsu_event = GLOBAL_CALL_EVENT;
             else
              g_uiFsu_event = GLOBAL_RX_CALL_EVENT;
 
 
-        break;
+        break;*/
 
-        case GROUP_INTERCOM_BREAK_IN_FRAME:
+        /*case GROUP_INTERCOM_BREAK_IN_FRAME:
               printf("***********************INSIDE GROUP_INTERCOM_BREAK_IN_FRAME\n");
             icom_grp=(struct server_coms_icom_break_in_group_frame *) data;
 
              for(i_cntr=ZERO;i_cntr<THIRTY_TWO;i_cntr++)
              {
               // j=i;
+
                 printf("............icom_grp->contributor_list[i_j] %d\n",icom_grp->contributor_list[i_j]);
                icom_contributor_status_info[i_cntr].cont1=icom_grp->contributor_list[i_j];
                i_j++;
@@ -1182,9 +1709,9 @@ void parse_commands (int cmd_id, void* data)
              }
 
 
-        break;
+        break;*/
 
-        case GLOBAL_RESET:
+        /*case GLOBAL_RESET:
              gbl = (struct server_coms_global_call *) data;
              incoming_global_call.cmd=gbl->cmd;
              incoming_global_call.initiator_id=gbl->initiator_id;
@@ -1197,9 +1724,9 @@ void parse_commands (int cmd_id, void* data)
              else
              g_uiFsu_event = GLOBAL_RESET_RX_EVENT;
 
-        break;
+        break;*/
 
-        case INTERCOM_STATE_CHANGE_FRAME:
+       /* case INTERCOM_STATE_CHANGE_FRAME:
 
              printf("***********************INSIDE INTERCOM_STATE_CHANGE_FRAME\n");
              icom_start_stop = (struct server_coms_icom_start_stop_frame *) data;
@@ -1208,9 +1735,11 @@ void parse_commands (int cmd_id, void* data)
                 if(icom_start_stop->icom_no[i_cntr]>ZERO)
                 {
 
-                    if(stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]-MIN_OFFSET==LIVE])
+                    if(stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]-
+                    MIN_OFFSET==LIVE])
                     {
-                         stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]-MIN_OFFSET] = DEAD;
+                         stn_config.icom_live_dead_status[icom_start_stop->icom_no[i_cntr]
+                         -MIN_OFFSET] = DEAD;
                           if(stn_config.default_intercom==icom_start_stop->icom_no[i_cntr])
                           {
                            g_uiFsu_event=ICOM_STATE_CHANGE_EVENT;
@@ -1232,7 +1761,7 @@ void parse_commands (int cmd_id, void* data)
 
                 }
              }
-        break;
+        break;*/
 
         default:
         break;
@@ -1254,6 +1783,7 @@ void send_req_msg_to_server(unsigned int fsu_state,int cmd_id, int frame_length,
     char dial_string[TWENTY];
     char frame_message[THIRTY];
     char server_message[FIFTY];
+    char p2p_call_ack_message[FIFTY];
     bzero(dial_string,sizeof(dial_string));
     bzero(frame_message,sizeof(frame_message));
     bzero(server_message,sizeof(server_message));
@@ -1265,8 +1795,11 @@ void send_req_msg_to_server(unsigned int fsu_state,int cmd_id, int frame_length,
      udp_g_cServer_addr.sin_port = htons(atoi(UNICAST_PORT));
 
 
-
-
+   /* if(cmd_id!= 51)
+    {
+        Call_cmdid = cmd_id;
+    }*/
+   // printf("****** Call_cmdid = %d\n",Call_cmdid);
     sprintf(server_message,"%s$%d$%d$%d$",FRAME_HEADER,frame_length,cmd_id,stn_config.logical_id);
 
     switch(cmd_id)
@@ -1277,7 +1810,7 @@ void send_req_msg_to_server(unsigned int fsu_state,int cmd_id, int frame_length,
             strcat(server_message,frame_message);
             printf("sendig config requset message to server \n");
             printf("sendig message %s\n",server_message);
-            printf("gc_station_ip=%s\t gc_station_ip=%d\n",gc_station_ip,gc_station_ip);
+
             if(sendto(g_uiServ_udp_comm_fd,server_message,strlen(server_message),ZERO,
             &udp_g_cServer_addr,
             sizeof(udp_g_cServer_addr))<ZERO)
@@ -1380,6 +1913,60 @@ void send_req_msg_to_server(unsigned int fsu_state,int cmd_id, int frame_length,
                 perror("write failed \n");
             }
         break;
+
+        case P2P_CALL_REQUEST:
+
+            sprintf(frame_message,"%s$\n",g_cCalled_station);
+            strcat(server_message,frame_message);
+            printf("sending message %s \n",server_message);
+            if(sendto(g_uiServ_udp_comm_fd,server_message,strlen(server_message),ZERO,
+            &udp_g_cServer_addr,sizeof(udp_g_cServer_addr))<ZERO)
+            {
+                perror("write failed \n");
+            }
+        break;
+
+        case P2P_CALL_ACK:
+            //sprintf(p2p_call_ack_message,"%s$%d$%d$%d$",FRAME_HEADER,frame_length,cmd_id,stn_config.logical_id);
+           //sprintf(frame_message,"%s$\n",g_cCalled_station);
+            //strcat(server_message,frame_message);
+            printf("sending message %s \n",server_message);
+            if(sendto(g_uiServ_udp_comm_fd,server_message,strlen(server_message),ZERO,
+            &udp_g_cServer_addr,sizeof(udp_g_cServer_addr))<ZERO)
+            {
+                perror("write failed \n");
+            }
+        break;
+
+        case P2P_NO_RESPONSE:
+            printf("sending message %s \n",server_message);
+            if(sendto(g_uiServ_udp_comm_fd,server_message,strlen(server_message),ZERO,
+            &udp_g_cServer_addr,sizeof(udp_g_cServer_addr))<ZERO)
+            {
+                perror("write failed \n");
+            }
+        break;
+
+        case P2P_CALL_RESET_REQ:
+            //sprintf(frame_message,"%s$\n",g_cCalled_station);
+            //strcat(server_message,frame_message);
+            printf("sending message %s \n",server_message);
+            if(sendto(g_uiServ_udp_comm_fd,server_message,strlen(server_message),ZERO,
+            &udp_g_cServer_addr,sizeof(udp_g_cServer_addr))<ZERO)
+            {
+                perror("write failed \n");
+            }
+        break;
+
+         case P2P_CALL_RESET_ACK:
+            printf("sending message %s \n",server_message);
+            if(sendto(g_uiServ_udp_comm_fd,server_message,strlen(server_message),ZERO,
+            &udp_g_cServer_addr,sizeof(udp_g_cServer_addr))<ZERO)
+            {
+                perror("write failed \n");
+            }
+        break;
+
 
         case GROUP_CALL_REQUEST:
             sprintf(frame_message,"%c%c$0$",offset1,offset2);
@@ -1559,6 +2146,7 @@ void create_broadcast_reg_socket()
     printf("inside create_broadcast_reg_socket function...\n");
    /* set up socket */
    g_uiBroadcast_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+   printf("*************** Broadcast socket check %d\n",g_uiBroadcast_fd);
    if (g_uiBroadcast_fd < 0)
    {
      perror("create broadcast socket create failed:\n");
@@ -1651,7 +2239,9 @@ void create_multicast_signalling_socket()
 
 
    /* set up socket */
+  // g_uiMulticast_signalling_fd_sample  = socket(AF_INET, SOCK_DGRAM, 0);
    g_uiMulticast_signalling_fd  = socket(AF_INET, SOCK_DGRAM, 0);
+   printf("##############g_uiMulticast_signalling_fd is = %d\n", g_uiMulticast_signalling_fd);
    if (g_uiMulticast_signalling_fd  < 0) {
      perror("mul sig socket create:\n");
     // exit(1);

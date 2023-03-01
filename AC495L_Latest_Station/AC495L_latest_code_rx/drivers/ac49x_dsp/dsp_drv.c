@@ -799,7 +799,7 @@ receive_event_packet:
              case 32: ret=PAL_sysGpioInBit(32); break;
              case 34: ret=PAL_sysGpioInBit(34); break;
             }
-
+    break;
 
 
    		/* get receive event command - read the buffers from the dsp */
@@ -1797,6 +1797,7 @@ static ssize_t dspDev_write(struct file *file, const char *buf, size_t count, lo
 								p3WayConference,
 								sizeof(acgT3WayConference)))
 			{
+                printk("SET 3 way conf failed\n");///anuja
 				ret = -EFAULT;
 				break;
 			}
@@ -1926,9 +1927,8 @@ static ssize_t dspDev_write(struct file *file, const char *buf, size_t count, lo
 				ret = AC494_DSP_NO_INIT_E;
 				break;
 			}
-
+            printk("ATIVATED RTP %d times \n",cnt);///anuja
 			dsp_dev->dspDev[Device].SetupChannelAttr[Channel].ActivateOrUpdateRtp[MEDIA_CHANNEL_TYPE__REGULAR].RtpSynchronizingSource = phi_ssrc;//(rand()<<16)+rand();
-			printk("RtpSynchronizingSource:%d\n",dsp_dev->dspDev[Device].SetupChannelAttr[Channel].ActivateOrUpdateRtp[MEDIA_CHANNEL_TYPE__REGULAR].RtpSynchronizingSource);
              // the initial value of the sequence number and timestamp should be random
 			dsp_dev->dspDev[Device].SetupChannelAttr[Channel].ActivateOrUpdateRtp[MEDIA_CHANNEL_TYPE__REGULAR].TxSequenceNumber = (rand()<<16)+rand();
 			dsp_dev->dspDev[Device].SetupChannelAttr[Channel].ActivateOrUpdateRtp[MEDIA_CHANNEL_TYPE__REGULAR].TxTimeStamp = (rand()<<16)+rand();
@@ -4411,8 +4411,10 @@ int setDeviceParams(int Device, int NumberOfCallProgressTones,
 			pSetupDeviceAttr->Open.Channel[1].Slot               = 1;
 			pSetupDeviceAttr->Open.Channel[1].InterconnectedSlot = 5;
 
-			pSetupDeviceAttr->Open.Channel[2].Slot               = 8;
-			pSetupDeviceAttr->Open.Channel[2].InterconnectedSlot = 12;
+			//pSetupDeviceAttr->Open.Channel[2].Slot               = 8;
+			pSetupDeviceAttr->Open.Channel[2].Slot               = 32;
+			//pSetupDeviceAttr->Open.Channel[2].InterconnectedSlot = 12;
+			pSetupDeviceAttr->Open.Channel[2].InterconnectedSlot = 32;
 
 			pSetupDeviceAttr->Open.Channel[3].Slot               = 9;
 			pSetupDeviceAttr->Open.Channel[3].InterconnectedSlot = 13;
@@ -5085,6 +5087,7 @@ void setCodecAEC(Tac49xSetupChannelAttr *pSetupChannelAttr,  acIPPCodecType code
 		        pSetupChannelAttr->CodecConfiguration.HeadsetOutputSelect             = CONTROL__DISABLE;
 		        pSetupChannelAttr->CodecConfiguration.HandsetOutputSelect             = CONTROL__ENABLE;
 		        pSetupChannelAttr->CodecConfiguration.DacOutputPgaGain                = CODEC_DAC_OUTPUT_PGA_GAIN__minus24dB ;
+		        //pSetupChannelAttr->CodecConfiguration.AdcInputPgaGain                 = CODEC_ADC_INPUT_PGA_GAIN__plus12dB ;
 		        pSetupChannelAttr->CodecConfiguration.AdcInputPgaGain                 = CODEC_ADC_INPUT_PGA_GAIN__plus12dB ;
 		        pSetupChannelAttr->CodecConfiguration.AnalogLoopback                  = CONTROL__DISABLE;
 		        pSetupChannelAttr->CodecConfiguration.DigitalLoopback                 = CONTROL__DISABLE;

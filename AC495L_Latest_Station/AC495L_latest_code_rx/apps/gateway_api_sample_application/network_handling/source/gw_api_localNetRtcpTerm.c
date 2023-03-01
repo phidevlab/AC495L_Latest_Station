@@ -11,9 +11,9 @@
  *																	*
  ********************************************************************/
 /******************************************************************************
-*                                                                            
-* 	DESCRIPTION:	This file holds the routines for controling the socket hold by the local network termination 				  		                                                             
-*                                                                            
+*
+* 	DESCRIPTION:	This file holds the routines for controling the socket hold by the local network termination
+*
 ******************************************************************************/
 
 #include <stdio.h>
@@ -26,12 +26,12 @@
 #include <sys/msg.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <pthread.h> 
+#include <pthread.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>  
+#include <sys/stat.h>
 
-#include <sched.h> 
+#include <sched.h>
 
 #include "gw_api_localNetTerm.h"
 #include "gw_api_localNetRtcpRx.h"
@@ -48,9 +48,9 @@ pthread_t  acl_RTCPrxJobTid;
 *----------------------------------------------------------------------------
 *	Abstract:		launch acl_RTCPrxJob thread
 *----------------------------------------------------------------------------
-*	Input:     
+*	Input:
 *----------------------------------------------------------------------------
-*  	Output:		
+*  	Output:
 *----------------------------------------------------------------------------
 *	Returns: 	case of error -1 else 0
 ******************************************************************************/
@@ -73,7 +73,7 @@ int gw_api_createRtcpRxThread(void)
 		printf("\npthread_attr_setschedpolicy");
 		exit(1);
 	}
-  	sched.sched_priority = 70;	
+  	sched.sched_priority = 70;
  	if( (pthread_attr_setschedparam(&attr, &sched) != 0) )
 	{
 		printf("\npthread_attr_setschedparam");
@@ -86,8 +86,8 @@ int gw_api_createRtcpRxThread(void)
 	}
 
 	acl_RTCPrxJobTid = tid;
-	
-	return 0;	
+
+	return 0;
 
 } /* end of gw_api_createRtcpRxThread() */
 
@@ -112,7 +112,7 @@ int gw_api_createSocketRtcp(int localPort)
 	}
 
  	/* bind the socket to the local ip and the port */
-	if(bind(sFd,(struct sockaddr *)&serverAddr, sockAddrSize) < 0) 
+	if(bind(sFd,(struct sockaddr *)&serverAddr, sockAddrSize) < 0)
 	{
     		printf("\nbind");
 		close(sFd);
@@ -122,7 +122,7 @@ int gw_api_createSocketRtcp(int localPort)
 	/*add the sFd to the readfds set*/
 	networking_rtcpSfdAdd(sFd);
 
-	return sFd;	
+	return sFd;
 
 } /* end of gw_api_createSocketRtcp() */
 
@@ -139,7 +139,7 @@ void networking_rtcpChannelInfoDB_reset(void)
 	}
 
 	networking_rtcpSfdReset();
-	
+
 } /* end of networking_rtpChannelInfoDB_reset() */
 
 void networking_rtcpSocket2AbsChDB_reset(void)
@@ -152,8 +152,9 @@ void networking_rtcpSocket2AbsChDB_reset(void)
 
 int networking_rtcpChannelAddrSet(char *addr, short port, int channel)
 {
+
 	channelInfo_s *channelInfo;
-	
+
 	if ((0 > channel) || (ACG_NUMBER_OF_DSP_CHANNEL <= channel))
 	{
 		printf("\nchannel must be between 0 to %d\r\n", ACG_NUMBER_OF_DSP_CHANNEL -1);
@@ -173,7 +174,7 @@ int networking_rtcpChannelAddrSet(char *addr, short port, int channel)
 int networking_rtcpChannelConnect(int channel, int sFd)
 {
 	channelInfo_s *channelInfo;
-	
+
 	if ((0 > channel) || (ACG_NUMBER_OF_DSP_CHANNEL <= channel))
 	{
 		printf("\nchannel must be between 0 to %d\r\n", ACG_NUMBER_OF_DSP_CHANNEL -1);
@@ -188,7 +189,7 @@ int networking_rtcpChannelConnect(int channel, int sFd)
 	channelInfo->sFd = sFd;
 	/*set the "other side" DB*/
 	socket2AbsChDB[sFd] = channel;
-	
+
 	return 1;
 }
 

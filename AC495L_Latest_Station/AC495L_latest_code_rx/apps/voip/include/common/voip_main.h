@@ -26,14 +26,15 @@
 #define PAGING_END_TIMEOUT	  1500  // the time we find stream lost.
 #define PAGING_START_TIMEOUT  50  // every time we wait and check all call is disconnect or not when try to paging outgoing.
 #define PAGING_PTIME          20
+#define PVT_PTIME               20
 #define PVT_CHANNEL           0
 #define PG_CHANNEL            1
 #define CONF_CHANNEL          2
 
 #define NONE                  0
 #define HANDSET               1
-#define HEADSET               2
 #define MIC                   3
+#define HEADSET               2
 #define SPEAKER               4
 
 #define SET                   1
@@ -54,7 +55,7 @@
 #define LED_FLASH           1
 #define LINE_BLANK          0
 #define MSG_FLASH           1
-#define CONTINUE_DISPLAY    0
+#define CONTINUE_DISPLAY    2
 
 #define LINE1               1
 #define LINE2               2
@@ -66,7 +67,6 @@
 #define LED3                3
 #define LED4                4
 
-
 #define LCD_CLR_FIRST_LINE                  1
 #define LCD_CLR_SECOND_LINE                 2
 #define LCD_CLR_BOTH_LINE                   3
@@ -74,13 +74,8 @@
 #define LCD_CLR_FIRST_10_POSITION           5
 #define NO_LCD_CLR                          0
 
-#define IO                 	0
-#define LCD                 1
-#define LED_ON_TIME		    1
-#define LED_OFF_TIME		1
-#define FLASH_COUNTER		5
-#define IO_DATA			0x00
-
+#define LED                 1
+#define LCD                 2
 
 #define MIN_OFFSET         11
 #define DIR_KEY_OFFSET     10
@@ -124,6 +119,8 @@
 
 
 /***********FSU EVENTS**************/
+#define SHUTDOWN_EVENT          744
+#define SHUTDOWN_FRAME         743
 #define INIT_EVENT              1
 #define APP_TIMEOUT_EVENT       2
 #define VALID_FSU_REGISTER      3
@@ -172,7 +169,9 @@
 #define  CONF_TIMER_UPDATE_EVENT   46
 #define PTT_RELEASE_EVENT          47
 #define BROADCAST_TIMEOUT_EVENT    48
-
+#define P2P_BRK_RESET_EVENT         49
+#define NO_P2P_RESPONSE_EVENT       50
+#define P2P_RESET_PVTTIMEOUT_EVENT  51
 
 /**********CALL TYPES*****************/
 
@@ -192,13 +191,18 @@
 /**********************************/
 #define MAX_ETH_FRAME_LENGTH 1600
 #define UI_MSG_LENGTH        20
-#define SERVER_LIVE_TIMEOUT  30
+//#define SERVER_LIVE_TIMEOUT  30
+#define SERVER_LIVE_TIMEOUT  (30 * APP_TIMER_MULTIPLIER)
 #define MAX_PG_VOLUME        12
 #define MAX_PVT_VOLUME       13
 #define MAX_MUSIC_VOLUME     10
-#define KEEP_ALIVE_TIMEOUT    8//60
-#define CONFIGURATION_RESPONSE_TIMEOUT 20
-#define SERVER_RESPONSE_TIMEOUT        10
+//#define KEEP_ALIVE_TIMEOUT    8 //60
+#define KEEP_ALIVE_TIMEOUT    (8 * APP_TIMER_MULTIPLIER)
+//#define CONFIGURATION_RESPONSE_TIMEOUT     20
+#define CONFIGURATION_RESPONSE_TIMEOUT      (20 * APP_TIMER_MULTIPLIER)
+
+//#define SERVER_RESPONSE_TIMEOUT        40
+#define SERVER_RESPONSE_TIMEOUT        (40 * APP_TIMER_MULTIPLIER)
 #define SPEECH_DETECTION_TIMEOUT  40
 
 #define   ZERO            0
@@ -259,6 +263,11 @@
 #define DIAGNOSTIC_TIMER_PVT_PG   500
 #define THOUSAND                  1000
 
+
+#define APP_TIMER_MULTIPLIER               25
+//#define APP_TIMER_MULTIPLIER               1
+
+
 /**********variable declear for LCD*********/
 int lcd_zone_call_no;
 int lcd_zone_call_init;
@@ -278,14 +287,13 @@ int lcd_group_call_init;
 int lcd_icom_no;
 
 int lcd_conf_init;
-//int lcd_fcs_desc;
-char lcd_fcs_desc[SEVEN];
+int lcd_fcs_desc;
 int lcd_fcs_default_icom;
 
 char g_arcPvtCallTimer[TWENTY];
 char g_arcPvtCallTimer_fr_pg_init[TWENTY];
 char g_arcPgCallTimer[TWENTY];
-
+// extern int lcd_zone_call_no_show;
 
 
 int conf_cmd;
@@ -303,36 +311,35 @@ int PgCallTime_min;
 int PgCallTime_sec;
 
 
-//extern char gpio_io[5];//={0x01,0x02,0x04,0x08,0x20};
 
-extern char io_led[8]; //= {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
-extern char io_led_clear[1];
+
 /***********GPIO********************/
 #define           GPIO_ON           1
 #define           GPIO_OFF          0
 
-#define           PTT_SW            0
+//#define           PTT_SW            0
+#define           HOOK_SW_SENSE     0 ///Changes as per new schematic on 26-02-22
 #define           PTT_SPEECH        1
+#define           ICOM_STATUS       3     //2
+#define           LED_LAN_SERV      2      //3
+#define           MB_AMP_MUTE       4 ///Changes as per new schematic on 26-02-22
+#define           SRE_MUTE_ACT      5  ///Changes as per new schematic on 26-02-22
 
 
 #define           ICOM_MIX_ACT      27
-#define           MB_AMP_MUTE       6
+//#define           MB_AMP_MUTE       6
+#define           MIC_PTT_SW       6 ///Changes as per new schematic on 26-02-22
 #define           ICOM_AMP_MUTE     7
-#define           PFC_ACT           0x08 //8
-#define           GPIO_27           27
+#define           PFC_ACT           8
+#define           ICOM_MIX_ACT      27  ///Changes as per new schematic on 26-02-22
 #define           PVT_RX_CHK        29
 #define           PAGE_RX_CHK       31
-#define           AUDIO_OUT_CKK     32
-#define           GPIO_33           33
+#define           AUDIO_OUT_CHK     32
+#define           MIC_DIAG          33 ///Changes as per new schematic on 26-02-22
 #define           SOFT_RESET        34
 #define           LCD_BACKLIGHT     39
+#define           LED_CALL_THROUGH  40
 
-/***********PFC8574***************/
-#define           ICOM_STATUS        0//2
-#define           LED_CALL_THROUGH   1//40
-#define           LED_LAN_SERV       2//3
-#define           PAGE_SPEAKER       5 //28
-//#define           ICOM_MIX_ACT      5
 /*************************************/
 
 #define PAGE_CALL_PORT 7002
@@ -340,7 +347,7 @@ extern char io_led_clear[1];
 
 #define SERVER_IP_STRING "voip/signalling/sip/proxy_address="
 
-
+extern int Channel0_rtpsfd;
 void select_codec(int ch,int codec);
 void volume_change(void);
 void close_channel(channel);
@@ -383,6 +390,8 @@ extern struct sigaction      info;
 
 unsigned int g_uiConfig_Received;
 
+
+
 /************************************************************************************
 * Structure name: UI_msg															*
 * Description   : Message from Main application is copied							*
@@ -390,25 +399,16 @@ unsigned int g_uiConfig_Received;
 *************************************************************************************/
 struct UI_msg{
 
-   unsigned int parameter;
-   short int addr;
+   short int parameter;
    short int line_no;
-   char state;
    short int cmd;
    char text[TWENTY_ONE];
+   char state;
+   int lcd_clear_bit;
    int position;
-   short int flash_cntr;
-   short int display;
-   short int led_on_time;
-   short int led_off_time;
-   int pin_no;
-   int pin_status;
+   short int flash_cntr;//[FOUR];
 }ui_msg;
 
-extern fd_set app_readset,app_testset;
-void UI_sock_create ();
-void UI_socket_create();
-extern void *ui_thread(void *data);
 /************************************************************************************
 * Structure name: lcd_message										       			*
 * Description   : Message to displayed according line no is copied					*
@@ -426,17 +426,18 @@ struct lcd_message_t {
 * Description   : Message to displayed on the lcd screen is copied					*
 *				  in this structure													*
 *************************************************************************************/
-/*struct ui_lcd_msg{
+struct ui_lcd_msg{
 
    short int parameter;
+   int lcd_clr_bit;
    short int line_no;
  //  short int led_no;
    short int cmd;
    char text[TWENTY_ONE];
-  // short int position;
+   short int position;
    short int flash_cntr[FOUR];
  }lcd_msg;
-*/
+
 /************************************************************************************
 * Structure name: led_msg										       			*
 * Description   : LED glow information  is copied                					*
@@ -448,9 +449,10 @@ struct lcd_message_t {
    short int led_no;
    short int cmd;
    char text[TWENTY_ONE]; //because from voipapp this is common so incase of led this field contains zero
-   short int flash_cntr[FOUR];
- }led_msg;
-*/
+   char state;
+   short int flash_cntr;//[FOUR];
+ }led_msg;*/
+
 /************************************************************************************
 * Structure name: RTPHeader								       		       			*
 * Description   : Voice frame from network is copied              					*
@@ -665,6 +667,9 @@ struct private_call_status // STATUS_DATA_FOR_PRIVATE_CALL:EPBX,PTP,GROUP,CHANNE
   unsigned int  curr_icom_no;
   unsigned int  group_no;
   unsigned char pvt_call_busy;
+   unsigned int initiator;
+  char initiator_ip[15];
+  char destination_ip[15];
 }pvt_call;
 
 /************************************************************************************
@@ -736,6 +741,13 @@ extern unsigned int g_uiPage_call_timer;
 extern unsigned int g_uiPage_call_timer_frlcd_ini;
 extern unsigned int g_uiPage_call_timer_lcd;
 extern unsigned int g_uiFsu_event;
+
+///added by shraddha
+extern unsigned int g_uiFsu_Broadcast_event;
+extern unsigned int g_uiFsu_timer_event;
+extern unsigned int g_uiFsu_mcast_event;
+///added by shraddha
+
 extern unsigned int g_uiFsu_state;
 extern unsigned int g_uiUi_socket_fd;
 extern unsigned int g_uiApp_timer_fd;
@@ -751,6 +763,7 @@ extern unsigned int g_uiIncoming_pg_port;
 extern unsigned int g_uiDiagnostic_start_flag;
 extern unsigned int g_uiApp_diag_timer_fd;
 extern unsigned int g_uiMulticast_signalling_fd;
+//extern unsigned int g_uiMulticast_signalling_fd_sample;
 extern unsigned int g_uiFsu_event;
 extern unsigned int g_uiFsu_state;
 extern unsigned int g_uiUi_socket_fd;
@@ -770,6 +783,7 @@ extern int          g_izone_mul_addr_start_offset;
 extern int          g_iaim_mul_addr_start_offset;
 extern int          g_iPaging_fd;
 extern int          g_Iicom_fds[THIRTY_TWO];
+extern int          g_iGlobal_mem_dropped;
 extern int          g_iAim_mem_dropped;
 extern int          g_iIcom_mem_dropped;
 extern int          g_iDiagnostic_pvt_status;
@@ -779,7 +793,7 @@ extern int          g_iDiagnostic_nw_status;
 extern int          g_iAim_fds[FOUR];
 extern int          g_igroup_fds[THIRTY_TWO];
 extern int          g_izone_fds[THIRTY_TWO];
-extern int          g_iAcl_main_Voip_Task_AgentSocketFd;
+extern int          g_iAcl_main_Voip_Task_AgentSocketFd;  // 20 jan 2023
 extern int          g_iHandset_lifted_signal;
 
 extern char g_cLine1_buf[TWENTY];
@@ -811,9 +825,5 @@ int g_itransmit_fd_index;
 PAGING_WORKING   pWork_m;
 
 
-//void send_msg_ui_lcd(char state,char parameter,short int line_no,short int display,char *text,int position,char addr,short int cmd);
-
-
 
 #endif	/* _VOIP_MAIN_ */
-

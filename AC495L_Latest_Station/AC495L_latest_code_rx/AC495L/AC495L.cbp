@@ -2514,6 +2514,10 @@
 		<Unit filename="../apps/voip/include/common/acl_voip_conf.h" />
 		<Unit filename="../apps/voip/include/common/config_manager.h" />
 		<Unit filename="../apps/voip/include/common/enums.h" />
+		<Unit filename="../apps/voip/include/common/i22c.h" />
+		<Unit filename="../apps/voip/include/common/i2c.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="../apps/voip/include/common/iphone_fxo.h" />
 		<Unit filename="../apps/voip/include/common/iphone_fxs.h" />
 		<Unit filename="../apps/voip/include/common/iphone_localNetRtcpRx.h" />
@@ -2658,6 +2662,13 @@
 		</Unit>
 		<Unit filename="../apps/voip/source/common/enums.c">
 			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../apps/voip/source/common/i22c.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../apps/voip/source/common/i2c.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="../apps/voip/source/common/iphone_fxo.c">
 			<Option compilerVar="CC" />

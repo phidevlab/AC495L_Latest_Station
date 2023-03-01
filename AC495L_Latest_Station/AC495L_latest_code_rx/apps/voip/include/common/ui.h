@@ -16,15 +16,14 @@
 
 #define FOUR 4
 
-#define LCD_ADDRESS 0x27
-#define IO_ADDRESS 0x24
 
-#define IOCTL_CLEAR_DISPLAY                 	'0'
-#define IOCTL_PRINT                    		'1'
-#define IOCTL_LCD_INITIALIZATION        	'2'
-#define IOCTL_IO_INITIALIZATION		    	'3'
-#define IOCTL_SET_BIT_IO_EXPANDER	    	'4'
-#define IOCTL_GET_BIT_IO_EXPANDER	    	'5'
+
+#define IOCTL_CLEAR_DISPLAY                	'5'
+#define IOCTL_PRINT                    		'6'
+#define IOCTL_LCD_INITIALIZATION        	'7'
+#define IOCTL_IO_INITIALIZATION		    	'8'
+#define IOCTL_SET_BIT_IO_EXPANDER	    	'9'
+#define IOCTL_GET_BIT_IO_EXPANDER	    	'10'
 
 
  struct ui_led_msg
@@ -59,9 +58,6 @@
 #define UI_DSP_RADV_INIT_STATE          'f'
 #define UI_CONFERENCE_STATE             'i'
 #define UI_GROUP_CONTRIBUTOR_STATE      'p'
-
-
-
 
 #define INTERDIGIT_TIMEOUT 30
 
@@ -98,12 +94,20 @@ unsigned int          g_uipg_call_time_lcd_init;
 unsigned int          g_uipg_call_time_lcd;
 
 struct ioctl_io_mesg{				// a structure to be passed to ioctl argument
-	char kbuf[52];
+	unsigned char kbuf[52];
  	unsigned int i2c_device_address;
 	short int cmd;
     unsigned int pin_no;
     unsigned int pin_status;
 }io_msg;
+
+struct ioctl_rd_mesg{				// a structure to be passed to ioctl argument
+	unsigned char kbuf[52];
+ 	unsigned int i2c_device_address;
+	short int cmd;
+    unsigned int pin_no;
+    unsigned int pin_status;
+}io_rd;
 
 struct ioctl_lcd_mesg{				// a structure to be passed to ioctl argument
 	char kbuf[50];
@@ -114,4 +118,15 @@ struct ioctl_lcd_mesg{				// a structure to be passed to ioctl argument
 }msg;
 
 fd_set readset,testset;
+
+
+
+
+
+
+
+extern unsigned char keyboard_state,current_row,current_column,key_pressed_event,key_pressed_flag,key_released_event,press_and_hold_event,keyboard_detected_key;
+extern unsigned int  debounce_cntr;
+
+
 #endif
