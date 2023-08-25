@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "keypad_interface.h": "c",
+        "i2c.h": "c",
+        "server_coms.h": "c"
+    }
+}
